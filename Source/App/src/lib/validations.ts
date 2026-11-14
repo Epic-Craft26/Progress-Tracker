@@ -38,5 +38,5 @@ export const ApprovalReviewSchema = z.object({
 export const CreateEmployeeSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").trim(),
   email: z.string().email("Valid Google Drive email is required").trim(),
-  initialPassword: z.string().min(6, "Initial password must be at least 6 characters"),
+  initialPassword: z.string().min(6).optional(),
 });

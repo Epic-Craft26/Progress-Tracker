@@ -70,7 +70,13 @@ export default function CeoProjectsPage() {
     { id: "NOT_STARTED", label: "Not Started" },
   ];
 
-  if (!user) return null;
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-dash-bg flex items-center justify-center">
+        <div className="text-xs font-bold text-gray-400">Loading Projects Hub...</div>
+      </div>
+    );
+  }
 
   return (
     <AppLayout user={user} title="All Company Projects">

@@ -9,6 +9,9 @@ import {
   CheckCircle,
   Briefcase,
   AlertCircle,
+  Copy,
+  KeyRound,
+  Check,
 } from "lucide-react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card } from "@/components/ui/Card";
@@ -26,10 +29,14 @@ export default function CeoEmployeesPage() {
   // Form
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [initialPassword, setInitialPassword] = useState("Pass@123");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [createdInfo, setCreatedInfo] = useState<{
+    employeeId: string;
+    temporaryKey: string;
+    name: string;
+  } | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const loadEmployees = () => {
     setLoading(true);
@@ -51,26 +58,26 @@ export default function CeoEmployeesPage() {
   const handleCreateEmployee = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    setSuccess("");
+    setCreatedInfo(null);
     setSubmitting(true);
 
     try {
       const res = await fetch("/api/employees", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, initialPassword }),
+        body: JSON.stringify({ name, email }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to create employee");
 
-      setSuccess(`Employee ${data.employee.employeeId} registered successfully!`);
+      setCreatedInfo({
+        employeeId: data.employee.employeeId,
+        temporaryKey: data.temporaryKey,
+        name: data.employee.name,
+      });
       setName("");
       setEmail("");
-      setTimeout(() => {
-        setShowAddModal(false);
-        setSuccess("");
-        loadEmployees();
-      }, 1200);
+      loadEmployees();
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -78,7 +85,21 @@ export default function CeoEmployeesPage() {
     }
   };
 
-  if (!user) return null;
+  const copyCredentials = () => {
+    if (!createdInfo) return;
+    const text = `Epic Craft Account Details\nName: ${createdInfo.name}\nEmployee ID: ${createdInfo.employeeId}\nTemporary Password: ${createdInfo.temporaryKey}\nLogin Portal: ${window.location.origin}/login`;
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-dash-bg flex items-center justify-center">
+        <div className="text-xs font-bold text-gray-400">Loading Directory...</div>
+      </div>
+    );
+  }
 
   return (
     <AppLayout user={user} title="Employee Directory & ID Management">
@@ -93,7 +114,11 @@ export default function CeoEmployeesPage() {
         </div>
 
         <Button
-          onClick={() => setShowAddModal(true)}
+          onClick={() => {
+            setCreatedInfo(null);
+            setError("");
+            setShowAddModal(true);
+          }}
           icon={<UserPlus className="w-4 h-4" />}
         >
           Add New Employee
@@ -141,8 +166,8 @@ export default function CeoEmployeesPage() {
               </div>
 
               <div className="flex items-center justify-between text-[11px] text-gray-400 font-medium">
-                <span>Google Drive Synced</span>
-                <span className="text-brand-500 font-semibold">Editor Access</span>
+                <span>Google Workspace Synced</span>
+                <span className="text-brand-500 font-semibold">Drive Editor Access</span>
               </div>
             </Card>
           ))
@@ -153,83 +178,128 @@ export default function CeoEmployeesPage() {
       <Modal
         isOpen={showAddModal}
         onClose={() => setShowAddModal(false)}
-        title="Add New Employee"
-        description="Creates unique EC ID and binds Google Drive email for automated project sharing."
+        title={createdInfo ? "Employee Account Created" : "Register Team Member"}
+        description={
+          createdInfo
+            ? "Account successfully created. Provide these credentials to the employee."
+            : "Issues a unique EC Employee ID and binds Google Drive email for automated project sharing."
+        }
       >
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-smDash flex items-start gap-2 text-xs text-status-delayed font-semibold">
-            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-            <span>{error}</span>
+        {createdInfo ? (
+          <div className="space-y-4">
+            <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-dash">
+              <div className="flex items-center gap-2 text-status-completed font-bold text-sm mb-3">
+                <CheckCircle className="w-5 h-5" />
+                <span>Account Activated Successfully</span>
+              </div>
+
+              <div className="space-y-2 text-xs text-dash-textPrimary">
+                <div className="flex justify-between py-1 border-b border-emerald-100">
+                  <span className="text-gray-500">Employee Name:</span>
+                  <span className="font-bold">{createdInfo.name}</span>
+                </div>
+                <div className="flex justify-between py-1 border-b border-emerald-100">
+                  <span className="text-gray-500">Assigned ID:</span>
+                  <span className="font-mono font-bold text-brand-600">
+                    {createdInfo.employeeId}
+                  </span>
+                </div>
+                <div className="flex justify-between py-1">
+                  <span className="text-gray-500">Temporary Password:</span>
+                  <span className="font-mono font-bold text-status-pending">
+                    {createdInfo.temporaryKey}
+                  </span>
+                </div>
+              </div>
+
+              <p className="text-[10px] text-gray-500 mt-3 italic">
+                The employee will be required to create their permanent confidential password upon their first login.
+              </p>
+            </div>
+
+            <div className="flex items-center justify-between gap-3 pt-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={copyCredentials}
+                icon={copied ? <Check className="w-3.5 h-3.5 text-status-completed" /> : <Copy className="w-3.5 h-3.5" />}
+              >
+                {copied ? "Copied to Clipboard!" : "Copy Details"}
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => {
+                  setCreatedInfo(null);
+                  setShowAddModal(false);
+                }}
+              >
+                Done
+              </Button>
+            </div>
           </div>
+        ) : (
+          <>
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-smDash flex items-start gap-2 text-xs text-status-delayed font-semibold">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                <span>{error}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleCreateEmployee} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-dash-textPrimary mb-1 uppercase tracking-wider">
+                  Full Name *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Rahul Verma"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full bg-[#F5F6FA] text-sm rounded-smDash p-2.5 border border-dash-border/80 focus:outline-none focus:border-brand-500 font-medium"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-dash-textPrimary mb-1 uppercase tracking-wider">
+                  Google Account Email *
+                </label>
+                <input
+                  type="email"
+                  required
+                  placeholder="e.g. rahul.epiccraft@gmail.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full bg-[#F5F6FA] text-sm rounded-smDash p-2.5 border border-dash-border/80 focus:outline-none focus:border-brand-500 font-medium"
+                />
+                <p className="text-[10px] text-gray-400 mt-1">
+                  Required for automated Google Drive workspace sharing.
+                </p>
+              </div>
+
+              <div className="p-3 bg-brand-50/70 rounded-md border border-brand-100 flex items-center gap-2 text-xs text-dash-textSecondary">
+                <KeyRound className="w-4 h-4 text-brand-500 shrink-0" />
+                <span>
+                  A cryptographically secure temporary access key will be generated and displayed upon creation.
+                </span>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-dash-border/40">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowAddModal(false)}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={submitting}>
+                  {submitting ? "Registering..." : "Create Account & Issue ID"}
+                </Button>
+              </div>
+            </form>
+          </>
         )}
-
-        {success && (
-          <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-smDash text-xs text-status-completed font-semibold">
-            {success}
-          </div>
-        )}
-
-        <form onSubmit={handleCreateEmployee} className="space-y-4">
-          <div>
-            <label className="block text-xs font-bold text-dash-textPrimary mb-1 uppercase tracking-wider">
-              Full Name *
-            </label>
-            <input
-              type="text"
-              required
-              placeholder="e.g. Rahul Verma"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full bg-[#F5F6FA] text-sm rounded-smDash p-2.5 border border-dash-border/80 focus:outline-none focus:border-brand-500 font-medium"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-dash-textPrimary mb-1 uppercase tracking-wider">
-              Google Drive Email *
-            </label>
-            <input
-              type="email"
-              required
-              placeholder="e.g. rahul.epiccraft@gmail.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-[#F5F6FA] text-sm rounded-smDash p-2.5 border border-dash-border/80 focus:outline-none focus:border-brand-500 font-medium"
-            />
-            <p className="text-[10px] text-gray-400 mt-1">
-              Google Account required for automated Drive folder sharing.
-            </p>
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-dash-textPrimary mb-1 uppercase tracking-wider">
-              First-Time Temporary Password *
-            </label>
-            <input
-              type="text"
-              required
-              value={initialPassword}
-              onChange={(e) => setInitialPassword(e.target.value)}
-              className="w-full bg-[#F5F6FA] text-sm rounded-smDash p-2.5 border border-dash-border/80 focus:outline-none focus:border-brand-500 font-mono"
-            />
-            <p className="text-[10px] text-gray-400 mt-1">
-              The employee will be prompted to change this upon first login.
-            </p>
-          </div>
-
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-dash-border/40">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setShowAddModal(false)}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={submitting}>
-              {submitting ? "Issuing ID..." : "Create Account & Issue ID"}
-            </Button>
-          </div>
-        </form>
       </Modal>
     </AppLayout>
   );

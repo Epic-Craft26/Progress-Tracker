@@ -78,7 +78,10 @@ export async function POST(request: Request) {
       );
     }
 
-    const { name, email, initialPassword } = result.data;
+    const { name, email } = result.data;
+    const initialPassword =
+      result.data.initialPassword ||
+      `EC-${Math.random().toString(36).slice(-4).toUpperCase()}${Math.floor(1000 + Math.random() * 9000)}`;
 
     // Check duplicate email
     const existing = await prisma.user.findUnique({ where: { email } });
@@ -112,6 +115,7 @@ export async function POST(request: Request) {
           name: newEmployee.name,
           email: newEmployee.email,
         },
+        temporaryKey: initialPassword,
       },
       { status: 201 }
     );

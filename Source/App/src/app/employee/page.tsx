@@ -102,7 +102,13 @@ export default function EmployeeDashboardPage() {
     }
   };
 
-  if (!user) return null;
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-dash-bg flex items-center justify-center">
+        <div className="text-xs font-bold text-gray-400">Loading Employee Workspace...</div>
+      </div>
+    );
+  }
 
   const activeProjects = projects.filter((p) => p.status === "IN_PROGRESS");
 

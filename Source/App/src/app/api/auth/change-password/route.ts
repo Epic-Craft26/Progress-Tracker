@@ -60,11 +60,16 @@ export async function POST(request: Request) {
       redirectUrl,
     });
 
+    const isSecure =
+      process.env.NODE_ENV === "production" &&
+      !request.url.includes("localhost") &&
+      !request.url.includes("127.0.0.1");
+
     response.cookies.set({
       name: COOKIE_NAME,
       value: newToken,
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: isSecure,
       sameSite: "lax",
       path: "/",
       maxAge: 60 * 60 * 24 * 7,
