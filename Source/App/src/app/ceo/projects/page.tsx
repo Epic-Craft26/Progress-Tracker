@@ -85,11 +85,21 @@ export default function CeoProjectsPage() {
           </p>
         </div>
 
-        <Link href="/ceo/assign">
-          <Button icon={<PlusCircle className="w-4 h-4" />}>
-            Assign New Project
-          </Button>
-        </Link>
+        <div className="flex items-center gap-3">
+          <a
+            href="/api/reports/export?format=csv"
+            download
+            className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-gray-700 bg-white hover:bg-gray-50 border border-dash-border/80 rounded-smDash transition-colors shadow-sm"
+          >
+            <FileText className="w-4 h-4 text-gray-500" />
+            <span>Export Report (CSV)</span>
+          </a>
+          <Link href="/ceo/assign">
+            <Button icon={<PlusCircle className="w-4 h-4" />}>
+              Assign New Project
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Tabs & Filters Bar (DashStack Style) */}
