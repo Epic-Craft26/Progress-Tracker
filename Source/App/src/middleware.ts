@@ -46,6 +46,14 @@ export async function middleware(request: NextRequest) {
 
     return NextResponse.next();
   } catch (err) {
+    if (pathname.startsWith("/api/")) {
+      const res = NextResponse.json(
+        { error: "Invalid or expired session" },
+        { status: 401 }
+      );
+      res.cookies.delete(COOKIE_NAME);
+      return res;
+    }
     const response = NextResponse.redirect(new URL("/login", request.url));
     response.cookies.delete(COOKIE_NAME);
     return response;

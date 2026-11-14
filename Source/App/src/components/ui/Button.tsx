@@ -11,6 +11,7 @@ export function Button({
   children,
   variant = "primary",
   size = "md",
+  type = "button",
   icon,
   className,
   disabled,
@@ -40,6 +41,7 @@ export function Button({
 
   return (
     <button
+      type={type}
       className={cn(base, sizeStyles[size], variantStyles[variant], className)}
       disabled={disabled}
       {...props}

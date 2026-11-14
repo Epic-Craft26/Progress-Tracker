@@ -26,13 +26,14 @@ export function Modal({
       if (e.key === "Escape") onClose();
     };
     if (isOpen) {
+      const originalOverflow = document.body.style.overflow;
       document.body.style.overflow = "hidden";
       window.addEventListener("keydown", handleKeyDown);
+      return () => {
+        document.body.style.overflow = originalOverflow;
+        window.removeEventListener("keydown", handleKeyDown);
+      };
     }
-    return () => {
-      document.body.style.overflow = "unset";
-      window.removeEventListener("keydown", handleKeyDown);
-    };
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
@@ -52,6 +53,9 @@ export function Modal({
         aria-hidden="true"
       />
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
         className={cn(
           "relative w-full bg-white rounded-dash shadow-xl border border-dash-border/60 overflow-hidden z-10 transition-all",
           maxWidthStyles[maxWidth]
@@ -59,16 +63,19 @@ export function Modal({
       >
         <div className="flex items-center justify-between p-6 border-b border-dash-border/60">
           <div>
-            <h2 className="text-xl font-bold text-dash-textPrimary">{title}</h2>
+            <h2 id="modal-title" className="text-xl font-bold text-dash-textPrimary">
+              {title}
+            </h2>
             {description && (
               <p className="text-xs text-dash-textSecondary mt-1">{description}</p>
             )}
           </div>
           <button
             onClick={onClose}
+            aria-label="Close modal"
             className="p-1.5 text-gray-400 hover:text-gray-700 rounded-md hover:bg-gray-100 transition-colors"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
         <div className="p-6 max-h-[80vh] overflow-y-auto">{children}</div>

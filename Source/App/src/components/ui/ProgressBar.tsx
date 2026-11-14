@@ -29,15 +29,28 @@ export function ProgressBar({
     if (variant === "primary") return "bg-brand-500";
     if (clamped >= 100) return "bg-status-completed";
     if (clamped >= 50) return "bg-brand-500";
-    if (clamped >= 25) return "bg-[#FF9F43]";
+    if (clamped >= 25) return "bg-status-pending";
     return "bg-gray-400";
   };
 
   return (
     <div className={cn("w-full flex items-center gap-3", className)}>
-      <div className={cn("w-full bg-gray-100 rounded-full overflow-hidden flex-1", sizeStyles[size])}>
+      <div
+        role="progressbar"
+        aria-valuenow={clamped}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label="Progress percentage"
+        className={cn(
+          "w-full bg-gray-100 rounded-full overflow-hidden flex-1",
+          sizeStyles[size]
+        )}
+      >
         <div
-          className={cn("h-full transition-all duration-300 ease-out rounded-full", getColor())}
+          className={cn(
+            "h-full transition-all duration-300 ease-out rounded-full",
+            getColor()
+          )}
           style={{ width: `${clamped}%` }}
         />
       </div>

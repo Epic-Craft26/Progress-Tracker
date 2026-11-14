@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Search, Bell, ExternalLink } from "lucide-react";
+import { Search, Bell } from "lucide-react";
 import { UserSession } from "@/types";
 import { Avatar } from "@/components/ui/Avatar";
 
@@ -36,6 +36,7 @@ export function Header({
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
+            aria-label="Search projects and tasks"
             placeholder="Search projects, tasks..."
             className="w-full bg-[#F5F6FA] text-xs text-dash-textPrimary rounded-full pl-9 pr-4 py-2 border border-dash-border/60 focus:outline-none focus:border-brand-500 transition-colors"
           />

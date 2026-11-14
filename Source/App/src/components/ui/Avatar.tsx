@@ -9,9 +9,12 @@ interface AvatarProps {
 
 export function Avatar({ name, size = "md", className }: AvatarProps) {
   const getInitials = (n: string) => {
-    const parts = n.trim().split(" ");
-    if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
-    return (n.slice(0, 2) || "EC").toUpperCase();
+    if (!n || !n.trim()) return "EC";
+    const parts = n.trim().split(/\s+/);
+    if (parts.length >= 2 && parts[0] && parts[1]) {
+      return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    }
+    return (parts[0]?.slice(0, 2) || "EC").toUpperCase();
   };
 
   const sizeStyles = {
@@ -20,7 +23,6 @@ export function Avatar({ name, size = "md", className }: AvatarProps) {
     lg: "w-11 h-11 text-sm font-semibold",
   };
 
-  // Consistent pleasant background color based on name
   const colors = [
     "bg-blue-100 text-blue-700 border-blue-200",
     "bg-indigo-100 text-indigo-700 border-indigo-200",
@@ -28,11 +30,16 @@ export function Avatar({ name, size = "md", className }: AvatarProps) {
     "bg-purple-100 text-purple-700 border-purple-200",
     "bg-amber-100 text-amber-700 border-amber-200",
   ];
-  const colorIndex = Math.abs(name.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0)) % colors.length;
+  const safeName = name || "EC";
+  const colorIndex =
+    Math.abs(safeName.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0)) %
+    colors.length;
 
   return (
     <div
       title={name}
+      aria-label={name}
+      role="img"
       className={cn(
         "rounded-full flex items-center justify-center font-bold border select-none shrink-0",
         sizeStyles[size],
@@ -58,7 +65,12 @@ export function AvatarGroup({
   return (
     <div className="flex items-center -space-x-2 overflow-hidden">
       {displayed.map((u, i) => (
-        <Avatar key={i} name={u.name} size="sm" className="ring-2 ring-white" />
+        <Avatar
+          key={u.email || u.name || i}
+          name={u.name}
+          size="sm"
+          className="ring-2 ring-white"
+        />
       ))}
       {remaining > 0 && (
         <div className="w-7 h-7 rounded-full bg-gray-200 text-gray-700 flex items-center justify-center text-[10px] font-bold ring-2 ring-white select-none">

@@ -10,10 +10,10 @@ interface BadgeProps {
 
 export function Badge({ children, variant = "neutral", className }: BadgeProps) {
   const variantStyles = {
-    primary: "bg-[#EEF4FF] text-[#4880FF] border-[#D9E5FF]",
-    success: "bg-[#E6F8F5] text-[#00B69B] border-[#B2EDE4]",
-    warning: "bg-[#FFF6E9] text-[#FF9F43] border-[#FFE2C2]",
-    danger: "bg-[#FEECEB] text-[#EF3826] border-[#FDB8B4]",
+    primary: "bg-brand-50 text-brand-500 border-brand-100",
+    success: "bg-emerald-50 text-status-completed border-emerald-200",
+    warning: "bg-amber-50 text-status-pending border-amber-200",
+    danger: "bg-rose-50 text-status-delayed border-rose-200",
     neutral: "bg-gray-100 text-gray-700 border-gray-200",
   };
 
