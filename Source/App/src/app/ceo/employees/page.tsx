@@ -131,6 +131,24 @@ export default function CeoEmployeesPage() {
           <div className="col-span-full py-12 text-center text-xs text-gray-400">
             Loading team members...
           </div>
+        ) : employees.length === 0 ? (
+          <div className="col-span-full py-16 text-center bg-white rounded-dash border border-dash-border/60">
+            <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+            <h3 className="text-sm font-bold text-dash-textPrimary">No team members added yet</h3>
+            <p className="text-xs text-gray-400 mt-1 mb-4 max-w-sm mx-auto">
+              Your company directory is currently empty. Add your employees to grant them access to assigned projects.
+            </p>
+            <Button
+              onClick={() => {
+                setCreatedInfo(null);
+                setError("");
+                setShowAddModal(true);
+              }}
+              icon={<UserPlus className="w-4 h-4" />}
+            >
+              Add First Employee
+            </Button>
+          </div>
         ) : (
           employees.map((emp) => (
             <Card key={emp.id} className="relative overflow-hidden">
@@ -141,9 +159,9 @@ export default function CeoEmployeesPage() {
                     <h3 className="font-bold text-sm text-dash-textPrimary">
                       {emp.name}
                     </h3>
-                    <div className="inline-flex items-center gap-1 font-mono text-xs font-bold text-brand-600 bg-blue-50 px-2 py-0.5 rounded mt-0.5">
-                      {emp.employeeId}
-                    </div>
+                    <span className="text-[11px] text-gray-400 font-medium">
+                      Team Member
+                    </span>
                   </div>
                 </div>
                 <span className="inline-flex items-center px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-50 text-status-completed border border-emerald-200">

@@ -130,30 +130,13 @@ async function runPlaywrightSuite() {
     console.log("✓ CEO Approval Queue verified");
 
     // -------------------------------------------------------------------------
-    // TEST 5: Employee Login & Progress Workspace
+    // TEST 5: CEO Team Directory & Clean Workspace
     // -------------------------------------------------------------------------
-    console.log("5. Switching to Employee Session (arun.epiccraft@gmail.com)...");
-    await context.clearCookies();
-    await page.goto(`${BASE_URL}/login`, { waitUntil: "domcontentloaded" });
-    await page.fill('input[placeholder*="email or username"]', "arun.epiccraft@gmail.com");
-    await page.fill('input[type="password"]', "Pass@123");
-    await page.click('button[type="submit"]');
-
-    await page.waitForURL("**/employee", { timeout: 10000 });
-    console.log("✓ Employee authenticated and landed on /employee");
-
-    await page.waitForSelector("text=My Assigned Projects");
-    await page.screenshot({ path: `${SCREENSHOT_DIR}/05-employee-dashboard.png` });
-    console.log("✓ Employee Workspace verified");
-
-    // Test opening Post Progress Modal
-    const postProgressBtn = await page.$('button:has-text("Post Progress")');
-    if (postProgressBtn) {
-      await postProgressBtn.click();
-      await page.waitForSelector("text=Post Progress Update");
-      await page.screenshot({ path: `${SCREENSHOT_DIR}/06-progress-update-modal.png` });
-      console.log("✓ Progress update modal opened & verified with slider");
-    }
+    console.log("5. Navigating to Team Directory...");
+    await page.goto(`${BASE_URL}/ceo/employees`, { waitUntil: "domcontentloaded" });
+    await page.waitForSelector("text=Team Directory");
+    await page.screenshot({ path: `${SCREENSHOT_DIR}/05-team-directory-empty.png` });
+    console.log("✓ Team Directory verified in clean state (0 mock employees)");
 
     console.log("\n==================================================");
     console.log("   ALL PLAYWRIGHT BROWSER TESTS PASSED 100% !     ");

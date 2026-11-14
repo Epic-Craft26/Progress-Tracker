@@ -64,7 +64,8 @@ export function Header({
               {user.name}
             </div>
             <div className="text-[11px] text-gray-400 font-medium">
-              {user.email} • {user.role}
+              {user.email && user.email.includes("@") ? `${user.email} • ` : ""}
+              {user.role === "CEO" ? "CEO" : "Team Member"}
             </div>
           </div>
         </div>

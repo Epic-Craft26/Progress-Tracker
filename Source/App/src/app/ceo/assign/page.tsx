@@ -223,51 +223,66 @@ export default function CeoAssignProjectPage() {
                 </span>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-56 overflow-y-auto p-1 border border-dash-border/60 rounded-smDash bg-[#FAFAFA]">
-                {employees.map((emp) => {
-                  const isSelected = selectedEmployees.includes(emp.id);
-                  const isLead = leadId === emp.id;
-                  return (
-                    <div
-                      key={emp.id}
-                      onClick={() => toggleEmployee(emp.id)}
-                      className={`p-3 rounded-md cursor-pointer border transition-all flex items-center justify-between ${
-                        isSelected
-                          ? "bg-blue-50/90 border-brand-500 shadow-sm"
-                          : "bg-white border-dash-border/60 hover:border-gray-300"
-                      }`}
-                    >
-                      <div>
-                        <div className="font-bold text-xs text-dash-textPrimary">
-                          {emp.name}
+              {employees.length === 0 ? (
+                <div className="p-6 border border-dashed border-dash-border rounded-smDash bg-[#FAFAFA] text-center">
+                  <Users className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                  <p className="text-xs font-bold text-dash-textPrimary">No team members registered yet</p>
+                  <p className="text-[11px] text-gray-400 mt-0.5 mb-3">
+                    Add your team members in the Team Directory before creating projects to assign tasks to them.
+                  </p>
+                  <Link href="/ceo/employees">
+                    <Button size="sm" variant="outline" type="button">
+                      Go to Team Directory
+                    </Button>
+                  </Link>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-56 overflow-y-auto p-1 border border-dash-border/60 rounded-smDash bg-[#FAFAFA]">
+                  {employees.map((emp) => {
+                    const isSelected = selectedEmployees.includes(emp.id);
+                    const isLead = leadId === emp.id;
+                    return (
+                      <div
+                        key={emp.id}
+                        onClick={() => toggleEmployee(emp.id)}
+                        className={`p-3 rounded-md cursor-pointer border transition-all flex items-center justify-between ${
+                          isSelected
+                            ? "bg-blue-50/90 border-brand-500 shadow-sm"
+                            : "bg-white border-dash-border/60 hover:border-gray-300"
+                        }`}
+                      >
+                        <div>
+                          <div className="font-bold text-xs text-dash-textPrimary">
+                            {emp.name}
+                          </div>
+                          <div className="text-[10px] text-gray-400 font-medium">
+                            {emp.email}
+                          </div>
                         </div>
-                        <div className="text-[10px] text-gray-400 font-medium">
-                          {emp.email}
-                        </div>
-                      </div>
 
-                      {isSelected && (
-                        <div className="flex items-center gap-1">
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setLeadId(emp.id);
-                            }}
-                            className={`px-1.5 py-0.5 text-[9px] font-bold rounded ${
-                              isLead
-                                ? "bg-brand-500 text-white"
-                                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                            }`}
-                          >
-                            {isLead ? "LEAD" : "Set Lead"}
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
+                        {isSelected && (
+                          <div className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setLeadId(emp.id);
+                              }}
+                              className={`px-1.5 py-0.5 text-[9px] font-bold rounded ${
+                                isLead
+                                  ? "bg-brand-500 text-white"
+                                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                              }`}
+                            >
+                              {isLead ? "LEAD" : "Set Lead"}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
             {/* Drive Provisioning Info Notice */}

@@ -22,7 +22,7 @@ export async function POST(request: Request) {
     const idLower = identifier.toLowerCase();
     const idTitle = identifier.charAt(0).toUpperCase() + identifier.slice(1).toLowerCase();
 
-    // Support logging in via Email or Username (e.g. "karan" or "karan@epiccraft.com")
+    // Support logging in via Email or Username (e.g. "karan")
     let user = await prisma.user.findFirst({
       where: {
         OR: [

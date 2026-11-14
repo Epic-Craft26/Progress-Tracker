@@ -23,52 +23,20 @@ async function main() {
   const ceo = await prisma.user.create({
     data: {
       name: "Karan",
-      email: "karan@epiccraft.com",
+      email: "karan",
       role: "CEO",
       passwordHash: hashedCeoPassword,
       mustChangePassword: false,
     },
   });
 
-  // 2. Create Employees
-  const emp1 = await prisma.user.create({
-    data: {
-      name: "Arun Kumar",
-      email: "arun.epiccraft@gmail.com",
-      role: "EMPLOYEE",
-      passwordHash: hashedEmpPassword,
-      mustChangePassword: false,
-    },
+  console.log("CEO account initialized:", {
+    name: ceo.name,
+    identifier: ceo.email,
+    role: ceo.role,
   });
 
-  const emp2 = await prisma.user.create({
-    data: {
-      name: "Priya Patel",
-      email: "priya.epiccraft@gmail.com",
-      role: "EMPLOYEE",
-      passwordHash: hashedEmpPassword,
-      mustChangePassword: false,
-    },
-  });
-
-  const emp3 = await prisma.user.create({
-    data: {
-      name: "Vikram Mehta",
-      email: "vikram.epiccraft@gmail.com",
-      role: "EMPLOYEE",
-      passwordHash: hashedEmpPassword,
-      mustChangePassword: true,
-    },
-  });
-
-  console.log("Users initialized:", {
-    ceo: `${ceo.name} (${ceo.email})`,
-    emp1: `${emp1.name} (${emp1.email})`,
-    emp2: `${emp2.name} (${emp2.email})`,
-    emp3: `${emp3.name} (${emp3.email})`,
-  });
-
-  console.log("Clean production database initialized: 0 projects, 0 mock tasks. Ready for project creation.");
+  console.log("Clean production database initialized: 0 mock employees, 0 mock projects.");
 }
 
 main()
