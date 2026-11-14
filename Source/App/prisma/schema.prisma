@@ -1,0 +1,116 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id                 String           @id @default(cuid())
+  employeeId         String           @unique // e.g. EC-0001
+  name               String
+  email              String           @unique // Google Drive account email
+  role               String           @default("EMPLOYEE") // CEO | EMPLOYEE
+  passwordHash       String
+  isActive           Boolean          @default(true)
+  mustChangePassword Boolean          @default(false)
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  createdProjects    Project[]        @relation("ProjectCreator")
+  assignedProjects   ProjectMember[]
+  tasks              Task[]
+  updates            ProjectUpdate[]
+  approvalsGiven     ApprovalReview[] @relation("Reviewer")
+  notifications      Notification[]
+}
+
+model Project {
+  id              String           @id @default(cuid())
+  code            String           @unique // e.g. EC-PRJ-001
+  title           String
+  summary         String
+  priority        String           @default("MEDIUM") // LOW | MEDIUM | HIGH | URGENT
+  status          String           @default("NOT_STARTED") // NOT_STARTED | IN_PROGRESS | PENDING_REVIEW | REVISION_REQUESTED | COMPLETED
+  progress        Int              @default(0) // 0-100
+  deadline        DateTime
+  driveFolderId   String?
+  driveFolderUrl  String?
+  createdById     String
+  createdBy       User             @relation("ProjectCreator", fields: [createdById], references: [id])
+  completedAt     DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  members         ProjectMember[]
+  tasks           Task[]
+  updates         ProjectUpdate[]
+  approvals       ApprovalReview[]
+}
+
+model ProjectMember {
+  id          String   @id @default(cuid())
+  projectId   String
+  userId      String
+  memberRole  String   @default("CONTRIBUTOR") // LEAD | CONTRIBUTOR
+  assignedAt  DateTime @default(now())
+
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId])
+}
+
+model Task {
+  id           String    @id @default(cuid())
+  projectId    String
+  assignedToId String?
+  title        String
+  isCompleted  Boolean   @default(false)
+  dueDate      DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  project      Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  assignedTo   User?     @relation(fields: [assignedToId], references: [id])
+}
+
+model ProjectUpdate {
+  id          String   @id @default(cuid())
+  projectId   String
+  userId      String
+  progress    Int      // New progress percentage 0-100
+  note        String   // Description of work done
+  attachments String?  // JSON string or URL of uploaded Drive files
+  createdAt   DateTime @default(now())
+
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ApprovalReview {
+  id           String   @id @default(cuid())
+  projectId    String
+  reviewedById String
+  decision     String   // APPROVED | REVISION_REQUESTED
+  feedback     String?
+  createdAt    DateTime @default(now())
+
+  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  reviewer     User     @relation("Reviewer", fields: [reviewedById], references: [id])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  type      String   @default("INFO") // ASSIGNED | UPDATE | APPROVAL | REMINDER
+  link      String?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
