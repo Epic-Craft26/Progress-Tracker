@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { FolderPlus, Users, Calendar, AlertCircle, CheckCircle, Cloud, ArrowLeft } from "lucide-react";
+import { FolderPlus, Users, Calendar, AlertCircle, CheckCircle, Cloud, ArrowLeft, Copy, Check } from "lucide-react";
 import Link from "next/link";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card } from "@/components/ui/Card";
@@ -24,6 +24,8 @@ export default function CeoAssignProjectPage() {
   const [deadline, setDeadline] = useState("");
   const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
   const [leadId, setLeadId] = useState("");
+  const [customDriveUrl, setCustomDriveUrl] = useState("");
+  const [copiedEmails, setCopiedEmails] = useState(false);
 
   useEffect(() => {
     fetch("/api/auth/me")
@@ -53,6 +55,18 @@ export default function CeoAssignProjectPage() {
     });
   };
 
+  const copySelectedEmails = () => {
+    const emails = employees
+      .filter((e) => selectedEmployees.includes(e.id))
+      .map((e) => e.email)
+      .join(", ");
+    if (emails) {
+      navigator.clipboard.writeText(emails);
+      setCopiedEmails(true);
+      setTimeout(() => setCopiedEmails(false), 2500);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -79,6 +93,7 @@ export default function CeoAssignProjectPage() {
           deadline,
           assigneeIds: selectedEmployees,
           leadId: leadId || selectedEmployees[0],
+          driveFolderUrl: customDriveUrl,
         }),
       });
 
@@ -212,6 +227,31 @@ export default function CeoAssignProjectPage() {
               </div>
             </div>
 
+            {/* Google Drive Workspace URL */}
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-bold text-dash-textPrimary uppercase tracking-wider">
+                  Google Drive Folder URL (Optional)
+                </label>
+                <span className="text-[11px] text-gray-400">
+                  Leave empty to auto-generate workspace
+                </span>
+              </div>
+              <div className="relative">
+                <Cloud className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="url"
+                  placeholder="https://drive.google.com/drive/folders/..."
+                  value={customDriveUrl}
+                  onChange={(e) => setCustomDriveUrl(e.target.value)}
+                  className="w-full bg-[#F5F6FA] text-sm text-dash-textPrimary rounded-smDash pl-10 pr-4 py-2.5 border border-dash-border/80 focus:outline-none focus:border-brand-500 font-medium"
+                />
+              </div>
+              <p className="text-[11px] text-dash-textSecondary mt-1">
+                Your team will store all research documents, Figma links, and project deliverables inside this Google Drive folder.
+              </p>
+            </div>
+
             {/* Assignees Selector */}
             <div>
               <div className="flex items-center justify-between mb-2">
@@ -284,6 +324,46 @@ export default function CeoAssignProjectPage() {
                 </div>
               )}
             </div>
+
+            {/* Google Drive Team Access Permission Helper */}
+            {selectedEmployees.length > 0 && (
+              <div className="p-4 bg-blue-50/70 border border-blue-200/80 rounded-smDash animate-in fade-in">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <Cloud className="w-4 h-4 text-brand-500" />
+                    <span className="text-xs font-bold text-dash-textPrimary uppercase tracking-wider">
+                      Google Drive Team Access List
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={copySelectedEmails}
+                    className="text-xs font-bold text-brand-600 hover:text-brand-800 flex items-center gap-1.5 bg-white px-2.5 py-1 rounded border border-blue-200 shadow-xs transition-colors"
+                  >
+                    {copiedEmails ? (
+                      <>
+                        <Check className="w-3.5 h-3.5 text-status-completed" />
+                        <span className="text-status-completed">Copied!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3.5 h-3.5" />
+                        <span>Copy Emails for Drive</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+                <p className="text-xs text-dash-textSecondary leading-relaxed">
+                  Give your team Editor access on Google Drive. Paste these emails into your folder's <strong>Share</strong> dialog:
+                </p>
+                <div className="mt-2 p-2.5 bg-white rounded border border-blue-100 font-mono text-xs text-gray-700 font-medium break-all select-all">
+                  {employees
+                    .filter((e) => selectedEmployees.includes(e.id))
+                    .map((e) => e.email)
+                    .join(", ")}
+                </div>
+              </div>
+            )}
 
             {/* Drive Provisioning Info Notice */}
             <div className="p-4 bg-brand-50/60 rounded-smDash border border-brand-100 flex items-start gap-3">

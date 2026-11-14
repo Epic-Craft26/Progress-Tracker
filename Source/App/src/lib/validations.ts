@@ -19,6 +19,7 @@ export const CreateProjectSchema = z.object({
   }),
   assigneeIds: z.array(z.string()).min(1, "At least one assignee is required"),
   leadId: z.string().optional(),
+  driveFolderUrl: z.string().optional(),
 });
 
 export const PostUpdateSchema = z.object({

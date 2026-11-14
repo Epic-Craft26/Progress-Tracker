@@ -13,6 +13,7 @@ import {
   AlertCircle,
   FileCheck,
   PlusCircle,
+  Cloud,
 } from "lucide-react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { MetricCard } from "@/components/dashboard/MetricCard";
@@ -34,6 +35,7 @@ export default function EmployeeDashboardPage() {
   const [activeProject, setActiveProject] = useState<any | null>(null);
   const [progressVal, setProgressVal] = useState<number>(0);
   const [note, setNote] = useState("");
+  const [attachments, setAttachments] = useState("");
   const [markForReview, setMarkForReview] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [updateSuccess, setUpdateSuccess] = useState("");
@@ -63,6 +65,7 @@ export default function EmployeeDashboardPage() {
     setActiveProject(p);
     setProgressVal(p.progress);
     setNote("");
+    setAttachments("");
     setMarkForReview(p.progress >= 100);
     setUpdateSuccess("");
     setUpdateError("");
@@ -83,6 +86,7 @@ export default function EmployeeDashboardPage() {
           projectId: activeProject.id,
           progress: Number(progressVal),
           note,
+          attachments: attachments.trim() || undefined,
           status: markForReview ? "PENDING_REVIEW" : "IN_PROGRESS",
         }),
       });
@@ -320,6 +324,26 @@ export default function EmployeeDashboardPage() {
               onChange={(e) => setNote(e.target.value)}
               className="w-full bg-[#F5F6FA] text-sm text-dash-textPrimary rounded-smDash p-3 border border-dash-border/80 focus:outline-none focus:border-brand-500 font-medium"
             />
+          </div>
+
+          {/* Cloud Research / Drive Deliverable URL */}
+          <div>
+            <label className="block text-xs font-bold text-dash-textPrimary mb-1.5 uppercase tracking-wider">
+              Cloud Research / Drive Deliverable Link (Optional)
+            </label>
+            <div className="relative">
+              <Cloud className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                type="url"
+                placeholder="https://drive.google.com/... or Figma / Google Doc link"
+                value={attachments}
+                onChange={(e) => setAttachments(e.target.value)}
+                className="w-full bg-[#F5F6FA] text-sm text-dash-textPrimary rounded-smDash pl-10 pr-4 py-2.5 border border-dash-border/80 focus:outline-none focus:border-brand-500 font-medium"
+              />
+            </div>
+            <p className="text-[11px] text-gray-400 mt-1">
+              Store your project research and files on Google Drive and link them here.
+            </p>
           </div>
 
           {/* Mark for Review Checkbox */}

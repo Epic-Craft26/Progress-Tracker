@@ -48,6 +48,10 @@ export async function GET(request: Request) {
           },
         },
         tasks: true,
+        updates: {
+          include: { user: { select: { id: true, name: true, email: true } } },
+          orderBy: { createdAt: "desc" },
+        },
         _count: {
           select: { updates: true },
         },
@@ -78,13 +82,14 @@ export async function POST(request: Request) {
       );
     }
 
-    const { title, summary, priority, deadline, assigneeIds, leadId } = result.data;
+    const { title, summary, priority, deadline, assigneeIds, leadId, driveFolderUrl: customDriveUrl } = result.data;
     const projectCode = await getNextProjectCode();
 
-    // Auto-provision simulated Google Drive folder
-    const safeTitle = title.replace(/[^a-zA-Z0-9_-]/g, "_");
+    // Determine Google Drive folder URL (custom link or auto-generated workspace)
     const driveFolderId = `EC_Drive_${projectCode}_${Date.now()}`;
-    const driveFolderUrl = `https://drive.google.com/drive/folders/${driveFolderId}?usp=sharing`;
+    const driveFolderUrl = customDriveUrl?.trim()
+      ? customDriveUrl.trim()
+      : `https://drive.google.com/drive/folders/${driveFolderId}?usp=sharing`;
 
     const project = await prisma.project.create({
       data: {
