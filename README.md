@@ -61,14 +61,14 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
-## 🔑 Demo Credentials
+## 🔑 Default Accounts & Access
 
-| Role | Employee ID | Default Password | Features Accessible |
+| Role | Employee ID | Initial Password | Features Accessible |
 | :--- | :--- | :--- | :--- |
 | **CEO (Admin)** | `EC-0001` | `Admin@123` | Executive Dashboard, Assign Projects, Approval Queue, Employee Directory, Reports |
-| **Employee (Lead)** | `EC-0002` | `Pass@123` | My Projects, Post Progress Updates, Submit for CEO Review, Drive Access |
+| **Employee (Lead)** | `EC-0002` | `Pass@123` | My Projects, Post Progress Updates, Submit for CEO Review, Drive Workspace |
 | **Employee** | `EC-0003` | `Pass@123` | My Projects, Post Progress Updates, Submit for CEO Review |
-| **New Employee** | `EC-0004` | `Pass@123` | First-time password reset demonstration |
+| **New Employees** | Auto-assigned | Auto-generated PIN | One-time temporary key generated on account creation with mandatory password change |
 
 ---
 
