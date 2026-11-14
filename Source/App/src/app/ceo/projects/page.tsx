@@ -166,9 +166,16 @@ export default function CeoProjectsPage() {
           <div className="py-16 text-center">
             <FolderKanban className="w-12 h-12 text-gray-300 mx-auto mb-3" />
             <h3 className="text-sm font-bold text-dash-textPrimary">No projects found</h3>
-            <p className="text-xs text-gray-400 mt-1 max-w-sm mx-auto">
-              No projects match the selected filters or search query.
+            <p className="text-xs text-gray-400 mt-1 mb-4 max-w-sm mx-auto">
+              {search || activeTab !== "ALL" || priorityFilter !== "ALL"
+                ? "No projects match the selected filters or search query."
+                : "No projects created yet. Start by assigning your first project."}
             </p>
+            <Link href="/ceo/assign">
+              <Button size="sm" icon={<PlusCircle className="w-4 h-4" />}>
+                + Assign Project
+              </Button>
+            </Link>
           </div>
         ) : (
           <div className="overflow-x-auto">

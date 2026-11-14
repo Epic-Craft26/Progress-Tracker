@@ -10,6 +10,7 @@ import {
   ExternalLink,
   ChevronRight,
   TrendingUp,
+  FolderKanban,
 } from "lucide-react";
 import { getSession } from "@/lib/auth";
 import { getCeoDashboardStats } from "@/lib/projects";
@@ -38,28 +39,28 @@ export default async function CeoDashboardPage() {
         <MetricCard
           title="Active Projects"
           value={kpis.inProgress}
-          trend={{ value: "+2", isUp: true }}
+          subtitle={kpis.inProgress === 0 ? "No active projects" : `${kpis.inProgress} currently ongoing`}
           icon={<Briefcase className="w-6 h-6 text-brand-500" />}
           iconBgColor="bg-blue-50"
         />
         <MetricCard
           title="Pending Approvals"
           value={kpis.pendingReview}
-          subtitle="Waiting for CEO sign-off"
+          subtitle={kpis.pendingReview === 0 ? "No pending sign-offs" : `${kpis.pendingReview} awaiting CEO review`}
           icon={<Clock className="w-6 h-6 text-status-pending" />}
           iconBgColor="bg-amber-50"
         />
         <MetricCard
           title="Overdue / Stalled"
           value={kpis.overdue}
-          trend={{ value: "-1", isUp: false }}
+          subtitle={kpis.overdue === 0 ? "All on schedule" : `${kpis.overdue} require attention`}
           icon={<AlertTriangle className="w-6 h-6 text-status-delayed" />}
           iconBgColor="bg-red-50"
         />
         <MetricCard
           title="On-Time Delivery"
-          value={`${kpis.onTimeRate}%`}
-          trend={{ value: "+4.5%", isUp: true }}
+          value={kpis.completed > 0 ? `${kpis.onTimeRate}%` : "—"}
+          subtitle={kpis.completed > 0 ? `${kpis.completed} completed` : "No completed projects"}
           icon={<Award className="w-6 h-6 text-status-completed" />}
           iconBgColor="bg-emerald-50"
         />
@@ -107,50 +108,73 @@ export default async function CeoDashboardPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-dash-border/30">
-                  {recentProjects.map((p) => (
-                    <tr
-                      key={p.id}
-                      className="hover:bg-gray-50/80 transition-colors group"
-                    >
-                      <td className="py-3.5 pl-2 max-w-[200px]">
-                        <div className="font-bold text-dash-textPrimary truncate group-hover:text-brand-500 transition-colors">
-                          {p.title}
+                  {recentProjects.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="py-14 text-center">
+                        <div className="flex flex-col items-center justify-center">
+                          <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center mb-3 text-brand-500">
+                            <FolderKanban className="w-6 h-6" />
+                          </div>
+                          <h4 className="text-sm font-bold text-dash-textPrimary">
+                            No Projects Created Yet
+                          </h4>
+                          <p className="text-xs text-dash-textSecondary mt-1 mb-4 max-w-sm">
+                            Create your first project workspace with automated Google Drive integration.
+                          </p>
+                          <Link href="/ceo/assign">
+                            <Button size="sm" icon={<PlusCircle className="w-4 h-4" />}>
+                              + Assign First Project
+                            </Button>
+                          </Link>
                         </div>
-                        <div className="text-[11px] text-gray-400 font-medium">
-                          {p.code} • Due {formatDate(p.deadline)}
-                        </div>
-                      </td>
-                      <td className="py-3.5">
-                        <AvatarGroup
-                          users={p.members.map((m) => ({ name: m.user.name }))}
-                        />
-                      </td>
-                      <td className="py-3.5 w-36">
-                        <ProgressBar value={p.progress} size="sm" />
-                      </td>
-                      <td className="py-3.5">
-                        <PriorityBadge priority={p.priority as any} />
-                      </td>
-                      <td className="py-3.5">
-                        <StatusBadge status={p.status as any} />
-                      </td>
-                      <td className="py-3.5 pr-2 text-right">
-                        {p.driveFolderUrl ? (
-                          <a
-                            href={p.driveFolderUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-brand-500 hover:text-brand-700 hover:underline"
-                          >
-                            <span>Folder</span>
-                            <ExternalLink className="w-3 h-3" />
-                          </a>
-                        ) : (
-                          <span className="text-gray-400 text-[11px]">N/A</span>
-                        )}
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    recentProjects.map((p) => (
+                      <tr
+                        key={p.id}
+                        className="hover:bg-gray-50/80 transition-colors group"
+                      >
+                        <td className="py-3.5 pl-2 max-w-[200px]">
+                          <div className="font-bold text-dash-textPrimary truncate group-hover:text-brand-500 transition-colors">
+                            {p.title}
+                          </div>
+                          <div className="text-[11px] text-gray-400 font-medium">
+                            {p.code} • Due {formatDate(p.deadline)}
+                          </div>
+                        </td>
+                        <td className="py-3.5">
+                          <AvatarGroup
+                            users={p.members.map((m) => ({ name: m.user.name }))}
+                          />
+                        </td>
+                        <td className="py-3.5 w-36">
+                          <ProgressBar value={p.progress} size="sm" />
+                        </td>
+                        <td className="py-3.5">
+                          <PriorityBadge priority={p.priority as any} />
+                        </td>
+                        <td className="py-3.5">
+                          <StatusBadge status={p.status as any} />
+                        </td>
+                        <td className="py-3.5 pr-2 text-right">
+                          {p.driveFolderUrl ? (
+                            <a
+                              href={p.driveFolderUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-[11px] font-semibold text-brand-500 hover:text-brand-700 hover:underline"
+                            >
+                              <span>Folder</span>
+                              <ExternalLink className="w-3 h-3" />
+                            </a>
+                          ) : (
+                            <span className="text-gray-400 text-[11px]">N/A</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>

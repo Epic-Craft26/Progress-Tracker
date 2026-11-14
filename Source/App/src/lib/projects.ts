@@ -39,7 +39,7 @@ export async function getCeoDashboardStats() {
   ).length;
 
   const onTimeRate =
-    completed > 0 ? Math.round((onTimeProjects / completed) * 100) : 100;
+    completed > 0 ? Math.round((onTimeProjects / completed) * 100) : 0;
 
   // Recent activity stream
   const recentUpdates = await prisma.projectUpdate.findMany({

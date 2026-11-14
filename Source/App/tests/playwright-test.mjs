@@ -100,7 +100,7 @@ async function runPlaywrightSuite() {
     // TEST 2: CEO Login & Executive Dashboard
     // -------------------------------------------------------------------------
     console.log("2. Performing CEO Authentication (karan / 2006)...");
-    await page.fill('input[placeholder*="karan"]', "karan");
+    await page.fill('input[placeholder*="email or username"]', "karan");
     await page.fill('input[type="password"]', "2006");
     await page.click('button[type="submit"]');
 
@@ -135,7 +135,7 @@ async function runPlaywrightSuite() {
     console.log("5. Switching to Employee Session (arun.epiccraft@gmail.com)...");
     await context.clearCookies();
     await page.goto(`${BASE_URL}/login`, { waitUntil: "domcontentloaded" });
-    await page.fill('input[placeholder*="karan"]', "arun.epiccraft@gmail.com");
+    await page.fill('input[placeholder*="email or username"]', "arun.epiccraft@gmail.com");
     await page.fill('input[type="password"]', "Pass@123");
     await page.click('button[type="submit"]');
 
