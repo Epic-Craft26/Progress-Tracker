@@ -10,6 +10,7 @@ interface HeaderProps {
   title?: string;
   unreadNotifications?: number;
   onOpenNotifications?: () => void;
+  children?: React.ReactNode;
 }
 
 export function Header({
@@ -17,6 +18,7 @@ export function Header({
   title = "Dashboard",
   unreadNotifications = 0,
   onOpenNotifications,
+  children,
 }: HeaderProps) {
   return (
     <header className="h-16 bg-white border-b border-dash-border/60 fixed top-0 right-0 left-64 z-20 px-8 flex items-center justify-between">
@@ -43,18 +45,21 @@ export function Header({
         </div>
 
         {/* Notifications */}
-        <button
-          onClick={onOpenNotifications}
-          className="relative p-2 text-gray-500 hover:text-dash-textPrimary hover:bg-gray-50 rounded-full transition-colors"
-          aria-label="Notifications"
-        >
-          <Bell className="w-5 h-5" />
-          {unreadNotifications > 0 && (
-            <span className="absolute top-1 right-1 w-4 h-4 bg-status-delayed text-white text-[10px] font-bold rounded-full flex items-center justify-center ring-2 ring-white">
-              {unreadNotifications > 9 ? "9+" : unreadNotifications}
-            </span>
-          )}
-        </button>
+        <div className="relative">
+          <button
+            onClick={onOpenNotifications}
+            className="relative p-2 text-gray-500 hover:text-dash-textPrimary hover:bg-gray-50 rounded-full transition-colors focus:outline-none"
+            aria-label="Notifications"
+          >
+            <Bell className="w-5 h-5" />
+            {unreadNotifications > 0 && (
+              <span className="absolute top-1 right-1 w-4 h-4 bg-status-delayed text-white text-[10px] font-bold rounded-full flex items-center justify-center ring-2 ring-white">
+                {unreadNotifications > 9 ? "9+" : unreadNotifications}
+              </span>
+            )}
+          </button>
+          {children}
+        </div>
 
         {/* User Card */}
         <div className="flex items-center gap-3 pl-3 border-l border-dash-border/60">

@@ -45,8 +45,12 @@ export function Sidebar({ role, onLogout }: SidebarProps) {
     <aside className="w-64 bg-white border-r border-dash-border/60 flex flex-col h-screen fixed left-0 top-0 z-30 select-none">
       {/* Brand Header */}
       <div className="h-16 flex items-center px-6 border-b border-dash-border/60 gap-3">
-        <div className="w-9 h-9 rounded-xl bg-brand-500 flex items-center justify-center text-white font-extrabold text-base shadow-sm">
-          EC
+        <div className="w-10 h-10 rounded-xl overflow-hidden shadow-xs shrink-0 bg-white border border-dash-border/60 flex items-center justify-center p-1">
+          <img
+            src="/logo.png"
+            alt="Epic Craft Logo"
+            className="w-full h-full object-contain"
+          />
         </div>
         <div>
           <h1 className="font-extrabold text-base tracking-tight text-dash-textPrimary leading-none">

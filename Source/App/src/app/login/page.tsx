@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Lock, Mail, ArrowRight, AlertCircle, ShieldCheck, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { AnimatedLogo3D } from "@/components/ui/AnimatedLogo3D";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -58,17 +59,9 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-dash-bg flex flex-col justify-center items-center px-4 py-12 select-none">
       <div className="w-full max-w-md">
-        {/* Brand Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-brand-500 text-white font-black text-2xl shadow-lg mb-3 tracking-tight">
-            EC
-          </div>
-          <h1 className="text-2xl font-black text-dash-textPrimary tracking-tight">
-            Epic Craft
-          </h1>
-          <p className="text-xs font-semibold text-dash-textSecondary mt-1">
-            Enterprise Project Progress & Workspace Tracker
-          </p>
+        {/* Brand Header with 3D Animated Logo */}
+        <div className="mb-8">
+          <AnimatedLogo3D size="hero" />
         </div>
 
         {/* Enterprise Login Card */}
