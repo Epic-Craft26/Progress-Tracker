@@ -242,10 +242,11 @@ export default function EmployeeDashboardPage() {
                       href={p.driveFolderUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-600 hover:text-brand-800"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-blue-50 text-brand-600 hover:bg-brand-500 hover:text-white transition-colors font-bold text-xs shadow-xs"
                     >
-                      <ExternalLink className="w-3.5 h-3.5" />
-                      <span>Drive Folder</span>
+                      <Cloud className="w-3.5 h-3.5" />
+                      <span>Open Project Drive</span>
+                      <ExternalLink className="w-3 h-3" />
                     </a>
                   ) : (
                     <span />
@@ -286,6 +287,25 @@ export default function EmployeeDashboardPage() {
         )}
 
         <form onSubmit={handlePostUpdate} className="space-y-5">
+          {/* Active Google Drive Workspace Info */}
+          {activeProject?.driveFolderUrl && (
+            <div className="p-3 bg-blue-50/70 border border-blue-200/60 rounded-smDash flex items-center justify-between">
+              <div className="flex items-center gap-2 text-xs text-dash-textSecondary">
+                <Cloud className="w-4 h-4 text-brand-500 shrink-0" />
+                <span className="font-medium">Project Cloud Drive</span>
+              </div>
+              <a
+                href={activeProject.driveFolderUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-xs font-bold text-brand-600 hover:underline"
+              >
+                <span>Open in Drive</span>
+                <ExternalLink className="w-3 h-3" />
+              </a>
+            </div>
+          )}
+
           {/* Progress Slider */}
           <div>
             <div className="flex items-center justify-between mb-2">

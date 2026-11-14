@@ -85,11 +85,18 @@ export async function POST(request: Request) {
     const { title, summary, priority, deadline, assigneeIds, leadId, driveFolderUrl: customDriveUrl } = result.data;
     const projectCode = await getNextProjectCode();
 
-    // Determine Google Drive folder URL (custom link or auto-generated workspace)
-    const driveFolderId = `EC_Drive_${projectCode}_${Date.now()}`;
+    // Default to Epic Craft Master Drive Workspace
+    const defaultMasterDrive =
+      process.env.GOOGLE_DRIVE_MASTER_FOLDER_URL ||
+      "https://drive.google.com/drive/folders/1BisxzQ0xkseowtbaTe5FNhtTCRE8JFJf?usp=drive_link";
+    const masterFolderId =
+      process.env.GOOGLE_DRIVE_MASTER_FOLDER_ID ||
+      "1BisxzQ0xkseowtbaTe5FNhtTCRE8JFJf";
+
+    const driveFolderId = masterFolderId;
     const driveFolderUrl = customDriveUrl?.trim()
       ? customDriveUrl.trim()
-      : `https://drive.google.com/drive/folders/${driveFolderId}?usp=sharing`;
+      : defaultMasterDrive;
 
     const project = await prisma.project.create({
       data: {
