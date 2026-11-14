@@ -3,7 +3,6 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { CreateEmployeeSchema } from "@/lib/validations";
-import { getNextEmployeeId } from "@/lib/projects";
 
 export async function GET() {
   try {
@@ -16,7 +15,6 @@ export async function GET() {
       where: { role: "EMPLOYEE" },
       select: {
         id: true,
-        employeeId: true,
         name: true,
         email: true,
         isActive: true,
@@ -35,7 +33,7 @@ export async function GET() {
           },
         },
       },
-      orderBy: { employeeId: "asc" },
+      orderBy: { name: "asc" },
     });
 
     const formatted = employees.map((emp) => {
@@ -92,12 +90,10 @@ export async function POST(request: Request) {
       );
     }
 
-    const employeeId = await getNextEmployeeId();
     const passwordHash = await bcrypt.hash(initialPassword, 10);
 
     const newEmployee = await prisma.user.create({
       data: {
-        employeeId,
         name,
         email,
         role: "EMPLOYEE",
@@ -111,7 +107,6 @@ export async function POST(request: Request) {
         success: true,
         employee: {
           id: newEmployee.id,
-          employeeId: newEmployee.employeeId,
           name: newEmployee.name,
           email: newEmployee.email,
         },

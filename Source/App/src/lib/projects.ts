@@ -71,9 +71,3 @@ export async function getNextProjectCode(): Promise<string> {
   const nextNum = (count + 1).toString().padStart(3, "0");
   return `EC-PRJ-${nextNum}`;
 }
-
-export async function getNextEmployeeId(): Promise<string> {
-  const count = await prisma.user.count({ where: { role: "EMPLOYEE" } });
-  const nextNum = (count + 2).toString().padStart(4, "0");
-  return `EC-${nextNum}`;
-}

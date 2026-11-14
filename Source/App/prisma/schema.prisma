@@ -9,7 +9,6 @@ generator client {
 
 model User {
   id                 String           @id @default(cuid())
-  employeeId         String           @unique // e.g. EC-0001
   name               String
   email              String           @unique // Google Drive account email
   role               String           @default("EMPLOYEE") // CEO | EMPLOYEE

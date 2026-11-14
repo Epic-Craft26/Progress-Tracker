@@ -17,10 +17,10 @@ export async function GET(
     const project = await prisma.project.findUnique({
       where: { id },
       include: {
-        createdBy: { select: { id: true, name: true, employeeId: true } },
+        createdBy: { select: { id: true, name: true, email: true } },
         members: {
           include: {
-            user: { select: { id: true, name: true, email: true, employeeId: true } },
+            user: { select: { id: true, name: true, email: true } },
           },
         },
         tasks: {
@@ -30,7 +30,7 @@ export async function GET(
         },
         updates: {
           include: {
-            user: { select: { id: true, name: true, employeeId: true } },
+            user: { select: { id: true, name: true, email: true } },
           },
           orderBy: { createdAt: "desc" },
         },

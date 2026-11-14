@@ -7,13 +7,13 @@ async function runTests() {
   console.log("--- Starting Database & Validation Unit Tests ---");
 
   // 1. Verify users exist
-  const ceo = await prisma.user.findUnique({
-    where: { employeeId: "EC-0001" },
+  const ceo = await prisma.user.findFirst({
+    where: { role: "CEO" },
   });
-  if (!ceo || ceo.role !== "CEO") {
+  if (!ceo || ceo.name !== "Karan" || ceo.role !== "CEO") {
     throw new Error("CEO account assertion failed");
   }
-  console.log("✓ CEO user verification passed");
+  console.log("✓ CEO user verification passed (Karan)");
 
   const employees = await prisma.user.findMany({
     where: { role: "EMPLOYEE" },

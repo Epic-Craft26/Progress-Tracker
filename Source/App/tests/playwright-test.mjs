@@ -37,11 +37,13 @@ async function runPlaywrightSuite() {
     fs.mkdirSync(SCREENSHOT_DIR, { recursive: true });
   }
 
-  console.log(`Starting Next.js production server on port ${PORT}...`);
+  const appDir = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
+  console.log(`Starting Next.js production server on port ${PORT} from ${appDir}...`);
   const serverProcess = spawn(
     "npx",
     ["next", "start", "-H", "127.0.0.1", "-p", String(PORT)],
     {
+      cwd: appDir,
       stdio: "pipe",
       env: { ...process.env, PORT: String(PORT) },
     }
@@ -55,7 +57,7 @@ async function runPlaywrightSuite() {
   });
 
   serverProcess.stderr.on("data", (d) => {
-    // console.error(d.toString());
+    console.error("Server stderr:", d.toString().trim());
   });
 
   console.log(`Waiting for ${BASE_URL} to be ready...`);
@@ -77,6 +79,13 @@ async function runPlaywrightSuite() {
   });
   const page = await context.newPage();
 
+  page.on("console", (msg) => console.log("PAGE LOG:", msg.text()));
+  page.on("response", (res) => {
+    if (res.url().includes("/api/")) {
+      console.log(`HTTP ${res.status()} ${res.url()}`);
+    }
+  });
+
   try {
     // -------------------------------------------------------------------------
     // TEST 1: Login Page
@@ -90,13 +99,13 @@ async function runPlaywrightSuite() {
     // -------------------------------------------------------------------------
     // TEST 2: CEO Login & Executive Dashboard
     // -------------------------------------------------------------------------
-    console.log("2. Performing CEO Authentication (EC-0001)...");
-    await page.fill('input[placeholder*="EC-"]', "EC-0001");
-    await page.fill('input[type="password"]', "Admin@123");
+    console.log("2. Performing CEO Authentication (karan / 2006)...");
+    await page.fill('input[placeholder*="karan"]', "karan");
+    await page.fill('input[type="password"]', "2006");
     await page.click('button[type="submit"]');
 
     await page.waitForURL("**/ceo", { timeout: 10000 });
-    console.log("✓ CEO redirected to /ceo");
+    console.log("✓ CEO (Karan) redirected to /ceo");
 
     await page.waitForSelector("text=Active Projects");
     await page.screenshot({ path: `${SCREENSHOT_DIR}/02-ceo-dashboard.png` });
@@ -123,10 +132,10 @@ async function runPlaywrightSuite() {
     // -------------------------------------------------------------------------
     // TEST 5: Employee Login & Progress Workspace
     // -------------------------------------------------------------------------
-    console.log("5. Switching to Employee Session (EC-0002)...");
+    console.log("5. Switching to Employee Session (arun.epiccraft@gmail.com)...");
     await context.clearCookies();
     await page.goto(`${BASE_URL}/login`, { waitUntil: "domcontentloaded" });
-    await page.fill('input[placeholder*="EC-"]', "EC-0002");
+    await page.fill('input[placeholder*="karan"]', "arun.epiccraft@gmail.com");
     await page.fill('input[type="password"]', "Pass@123");
     await page.click('button[type="submit"]');
 
@@ -153,8 +162,8 @@ async function runPlaywrightSuite() {
     console.error("Playwright test encountered error:", error);
     try {
       console.error("Current URL:", page.url());
-      const html = await page.content();
-      console.error("Page HTML preview:\n", html.slice(0, 1000));
+      const bodyText = await page.innerText("body");
+      console.error("Visible Body Text:\n", bodyText);
     } catch (e) {}
     await page.screenshot({ path: `${SCREENSHOT_DIR}/error-state.png` }).catch(() => {});
     throw error;
@@ -164,6 +173,10 @@ async function runPlaywrightSuite() {
   }
 }
 
-runPlaywrightSuite().catch((err) => {
-  process.exit(1);
-});
+runPlaywrightSuite()
+  .then(() => {
+    process.exit(0);
+  })
+  .catch((err) => {
+    process.exit(1);
+  });

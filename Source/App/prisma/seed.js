@@ -15,15 +15,15 @@ async function main() {
   await prisma.project.deleteMany();
   await prisma.user.deleteMany();
 
-  const hashedCeoPassword = await bcrypt.hash("Admin@123", 10);
+  // CEO Password is 2006
+  const hashedCeoPassword = await bcrypt.hash("2006", 10);
   const hashedEmpPassword = await bcrypt.hash("Pass@123", 10);
 
-  // 1. Create CEO
+  // 1. Create CEO: Karan
   const ceo = await prisma.user.create({
     data: {
-      employeeId: "EC-0001",
-      name: "Rajesh Sharma",
-      email: "ceo@epiccraft.com",
+      name: "Karan",
+      email: "karan@epiccraft.com",
       role: "CEO",
       passwordHash: hashedCeoPassword,
       mustChangePassword: false,
@@ -33,7 +33,6 @@ async function main() {
   // 2. Create Employees
   const emp1 = await prisma.user.create({
     data: {
-      employeeId: "EC-0002",
       name: "Arun Kumar",
       email: "arun.epiccraft@gmail.com",
       role: "EMPLOYEE",
@@ -44,7 +43,6 @@ async function main() {
 
   const emp2 = await prisma.user.create({
     data: {
-      employeeId: "EC-0003",
       name: "Priya Patel",
       email: "priya.epiccraft@gmail.com",
       role: "EMPLOYEE",
@@ -55,7 +53,6 @@ async function main() {
 
   const emp3 = await prisma.user.create({
     data: {
-      employeeId: "EC-0004",
       name: "Vikram Mehta",
       email: "vikram.epiccraft@gmail.com",
       role: "EMPLOYEE",
@@ -64,12 +61,16 @@ async function main() {
     },
   });
 
-  console.log("Created users:", { ceo: ceo.employeeId, emp1: emp1.employeeId, emp2: emp2.employeeId, emp3: emp3.employeeId });
+  console.log("Created users:", {
+    ceo: `${ceo.name} (${ceo.email})`,
+    emp1: `${emp1.name} (${emp1.email})`,
+    emp2: `${emp2.name} (${emp2.email})`,
+    emp3: `${emp3.name} (${emp3.email})`,
+  });
 
   // 3. Create Sample Projects
   const now = new Date();
   const nextWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-  const nextMonth = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
   const pastDate = new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000);
 
   // Project 1: In Progress
@@ -200,7 +201,7 @@ async function main() {
     ],
   });
 
-  console.log("Database seeded successfully with 3 projects and sample notifications!");
+  console.log("Database seeded successfully with CEO Karan (password: 2006) and employees!");
 }
 
 main()

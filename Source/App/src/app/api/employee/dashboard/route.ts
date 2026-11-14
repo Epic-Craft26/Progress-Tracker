@@ -14,10 +14,10 @@ export async function GET() {
       include: {
         project: {
           include: {
-            createdBy: { select: { name: true, employeeId: true } },
+            createdBy: { select: { name: true, email: true } },
             members: {
               include: {
-                user: { select: { id: true, name: true, email: true, employeeId: true } },
+                user: { select: { id: true, name: true, email: true } },
               },
             },
             tasks: {

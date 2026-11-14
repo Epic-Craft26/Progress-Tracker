@@ -41,10 +41,10 @@ export async function GET(request: Request) {
     const projects = await prisma.project.findMany({
       where,
       include: {
-        createdBy: { select: { id: true, name: true, employeeId: true } },
+        createdBy: { select: { id: true, name: true, email: true } },
         members: {
           include: {
-            user: { select: { id: true, name: true, email: true, employeeId: true } },
+            user: { select: { id: true, name: true, email: true } },
           },
         },
         tasks: true,

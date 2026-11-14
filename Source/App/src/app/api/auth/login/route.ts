@@ -17,15 +17,40 @@ export async function POST(request: Request) {
       );
     }
 
-    const { employeeId, password } = result.data;
+    const { email, password } = result.data;
+    const identifier = email.trim();
+    const idLower = identifier.toLowerCase();
+    const idTitle = identifier.charAt(0).toUpperCase() + identifier.slice(1).toLowerCase();
 
-    const user = await prisma.user.findUnique({
-      where: { employeeId },
+    // Support logging in via Email or Username (e.g. "karan" or "karan@epiccraft.com")
+    let user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: { equals: identifier } },
+          { email: { equals: idLower } },
+          { email: { startsWith: `${idLower}@` } },
+          { name: { equals: identifier } },
+          { name: { equals: idLower } },
+          { name: { equals: idTitle } },
+        ],
+      },
     });
+
+    // Fallback: Case-insensitive match against all active users
+    if (!user) {
+      const allActive = await prisma.user.findMany({ where: { isActive: true } });
+      user =
+        allActive.find(
+          (u) =>
+            u.email.toLowerCase() === idLower ||
+            u.name.toLowerCase() === idLower ||
+            u.email.split("@")[0].toLowerCase() === idLower
+        ) || null;
+    }
 
     if (!user || !user.isActive) {
       return NextResponse.json(
-        { error: "Invalid Employee ID or account is inactive" },
+        { error: "Invalid username/email or account is inactive" },
         { status: 401 }
       );
     }
@@ -33,14 +58,13 @@ export async function POST(request: Request) {
     const passwordMatch = await bcrypt.compare(password, user.passwordHash);
     if (!passwordMatch) {
       return NextResponse.json(
-        { error: "Incorrect password or PIN" },
+        { error: "Incorrect password" },
         { status: 401 }
       );
     }
 
     const sessionPayload: UserSession = {
       id: user.id,
-      employeeId: user.employeeId,
       name: user.name,
       email: user.email,
       role: user.role as "CEO" | "EMPLOYEE",

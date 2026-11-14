@@ -242,7 +242,7 @@ export default function CeoAssignProjectPage() {
                           {emp.name}
                         </div>
                         <div className="text-[10px] text-gray-400 font-medium">
-                          {emp.employeeId} • {emp.email}
+                          {emp.email}
                         </div>
                       </div>
 

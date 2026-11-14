@@ -11,7 +11,6 @@ export type ProjectStatus =
 
 export interface UserSession {
   id: string;
-  employeeId: string;
   name: string;
   email: string;
   role: Role;
@@ -38,7 +37,6 @@ export interface ProjectData {
   };
   assignees: {
     id: string;
-    employeeId: string;
     name: string;
     email: string;
     role: string;

@@ -1,8 +1,8 @@
 import { z } from "zod";
 
 export const LoginSchema = z.object({
-  employeeId: z.string().min(3, "Employee ID is required").trim(),
-  password: z.string().min(4, "Password must be at least 4 characters"),
+  email: z.string().min(1, "Email or username is required").trim(),
+  password: z.string().min(1, "Password is required"),
 });
 
 export const ChangePasswordSchema = z.object({

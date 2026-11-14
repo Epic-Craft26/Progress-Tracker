@@ -9,10 +9,10 @@ async function runEndToEndLifecycleTest() {
   console.log("=================================================\n");
 
   // Step 1: Verify CEO & Employee Accounts
-  const ceo = await prisma.user.findUnique({ where: { employeeId: "EC-0001" } });
-  const employee = await prisma.user.findUnique({ where: { employeeId: "EC-0002" } });
+  const ceo = await prisma.user.findFirst({ where: { role: "CEO" } });
+  const employee = await prisma.user.findFirst({ where: { role: "EMPLOYEE" } });
   if (!ceo || !employee) throw new Error("Seed accounts missing");
-  console.log("✓ Step 1: CEO & Employee accounts verified");
+  console.log(`✓ Step 1: CEO (${ceo.name}) & Employee (${employee.name}) accounts verified`);
 
   // Step 2: CEO Creates a New Project
   const testProjectCode = `EC-E2E-${Date.now().toString().slice(-4)}`;

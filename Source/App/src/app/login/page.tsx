@@ -2,23 +2,23 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Lock, UserCheck, ArrowRight, AlertCircle, ShieldCheck, Eye, EyeOff } from "lucide-react";
+import { Lock, Mail, ArrowRight, AlertCircle, ShieldCheck, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [employeeId, setEmployeeId] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberId, setRememberId] = useState(false);
+  const [rememberLogin, setRememberLogin] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const savedId = localStorage.getItem("ec_remembered_id");
-    if (savedId) {
-      setEmployeeId(savedId);
-      setRememberId(true);
+    const savedLogin = localStorage.getItem("ec_remembered_login");
+    if (savedLogin) {
+      setEmail(savedLogin);
+      setRememberLogin(true);
     }
   }, []);
 
@@ -31,7 +31,7 @@ export default function LoginPage() {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ employeeId, password }),
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await res.json();
@@ -40,10 +40,10 @@ export default function LoginPage() {
         throw new Error(data.error || "Authentication failed. Please verify credentials.");
       }
 
-      if (rememberId) {
-        localStorage.setItem("ec_remembered_id", employeeId);
+      if (rememberLogin) {
+        localStorage.setItem("ec_remembered_login", email);
       } else {
-        localStorage.removeItem("ec_remembered_id");
+        localStorage.removeItem("ec_remembered_login");
       }
 
       router.push(data.redirectUrl);
@@ -76,7 +76,7 @@ export default function LoginPage() {
           <div className="mb-6">
             <h2 className="text-lg font-bold text-dash-textPrimary">Sign In</h2>
             <p className="text-xs text-dash-textSecondary mt-0.5">
-              Enter your corporate Employee ID and security credentials
+              Enter your corporate email or username and password
             </p>
           </div>
 
@@ -90,24 +90,24 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-xs font-bold text-dash-textPrimary mb-1.5 uppercase tracking-wider">
-                Employee ID
+                Email / Username
               </label>
               <div className="relative">
-                <UserCheck className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <Mail className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
                   type="text"
                   required
-                  placeholder="e.g. EC-0001"
-                  value={employeeId}
-                  onChange={(e) => setEmployeeId(e.target.value.toUpperCase())}
-                  className="w-full bg-[#F5F6FA] text-sm text-dash-textPrimary rounded-smDash pl-10 pr-4 py-2.5 border border-dash-border/80 focus:outline-none focus:border-brand-500 font-medium font-mono"
+                  placeholder="e.g. karan or karan@epiccraft.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full bg-[#F5F6FA] text-sm text-dash-textPrimary rounded-smDash pl-10 pr-4 py-2.5 border border-dash-border/80 focus:outline-none focus:border-brand-500 font-medium"
                 />
               </div>
             </div>
 
             <div>
               <label className="block text-xs font-bold text-dash-textPrimary mb-1.5 uppercase tracking-wider">
-                Password / Security PIN
+                Password
               </label>
               <div className="relative">
                 <Lock className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -138,11 +138,11 @@ export default function LoginPage() {
               <label className="flex items-center gap-2 cursor-pointer text-xs text-dash-textSecondary font-medium">
                 <input
                   type="checkbox"
-                  checked={rememberId}
-                  onChange={(e) => setRememberId(e.target.checked)}
+                  checked={rememberLogin}
+                  onChange={(e) => setRememberLogin(e.target.checked)}
                   className="w-3.5 h-3.5 text-brand-500 rounded accent-brand-500 cursor-pointer"
                 />
-                <span>Remember Employee ID</span>
+                <span>Remember me</span>
               </label>
             </div>
 
@@ -164,7 +164,7 @@ export default function LoginPage() {
             <span>256-bit Encrypted Workspace Authentication</span>
           </div>
           <p className="text-[11px] text-gray-400">
-            © 2026 Epic Craft Inc. All rights reserved. Authorized personnel only.
+            © 2026 Epic Craft Inc. All rights reserved.
           </p>
         </div>
       </div>

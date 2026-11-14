@@ -64,7 +64,7 @@ export function Header({
               {user.name}
             </div>
             <div className="text-[11px] text-gray-400 font-medium">
-              {user.employeeId} • {user.role}
+              {user.email} • {user.role}
             </div>
           </div>
         </div>
