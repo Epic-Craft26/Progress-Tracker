@@ -9,12 +9,14 @@ const COOKIE_NAME = "ec_session";
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Public assets and auth endpoints
+  // Public assets, static media, and auth endpoints
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api/auth/login") ||
     pathname === "/login" ||
-    pathname === "/favicon.ico"
+    pathname === "/favicon.ico" ||
+    pathname.startsWith("/logo") ||
+    pathname.match(/\.(png|jpg|jpeg|gif|svg|ico|webp)$/)
   ) {
     return NextResponse.next();
   }
@@ -61,5 +63,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:png|jpg|jpeg|gif|svg|ico|webp)$).*)"],
 };

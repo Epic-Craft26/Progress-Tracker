@@ -33,3 +33,54 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #A0A0A0;
 }
+
+/* 3D Hardware Accelerated Animations */
+@keyframes floatLogo3D {
+  0% {
+    transform: translateY(0px) rotateX(10deg) rotateY(-14deg) rotateZ(0deg);
+  }
+  25% {
+    transform: translateY(-8px) rotateX(-5deg) rotateY(-8deg) rotateZ(1deg);
+  }
+  50% {
+    transform: translateY(-16px) rotateX(-12deg) rotateY(12deg) rotateZ(0deg);
+  }
+  75% {
+    transform: translateY(-8px) rotateX(4deg) rotateY(8deg) rotateZ(-1deg);
+  }
+  100% {
+    transform: translateY(0px) rotateX(10deg) rotateY(-14deg) rotateZ(0deg);
+  }
+}
+
+@keyframes pulseGlow3D {
+  0%, 100% {
+    opacity: 0.55;
+    transform: scale(0.95);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.12);
+  }
+}
+
+@keyframes orbitSpin3D {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-float-3d {
+  animation: floatLogo3D 6s ease-in-out infinite;
+}
+
+.animate-pulse-glow-3d {
+  animation: pulseGlow3D 4s ease-in-out infinite;
+}
+
+.animate-orbit-3d {
+  animation: orbitSpin3D 12s linear infinite;
+}
