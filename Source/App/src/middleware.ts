@@ -12,7 +12,7 @@ export async function middleware(request: NextRequest) {
   // Public assets, static media, and auth endpoints
   if (
     pathname.startsWith("/_next") ||
-    pathname.startsWith("/api/auth/login") ||
+    pathname.startsWith("/api/auth/") ||
     pathname === "/login" ||
     pathname === "/favicon.ico" ||
     pathname.startsWith("/logo") ||
