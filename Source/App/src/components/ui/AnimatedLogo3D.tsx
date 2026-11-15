@@ -45,10 +45,10 @@ export function AnimatedLogo3D({
   };
 
   const sizeDimensions = {
-    sm: "w-12 h-12",
-    md: "w-20 h-20",
-    lg: "w-28 h-28",
-    hero: "w-36 h-36 sm:w-44 sm:h-44",
+    sm: "w-16 h-16",
+    md: "w-24 h-24",
+    lg: "w-36 h-36",
+    hero: "w-44 h-44 sm:w-52 sm:h-52",
   };
 
   return (
@@ -60,13 +60,13 @@ export function AnimatedLogo3D({
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-        {/* Ambient Pulsing Glow Aura */}
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/35 via-indigo-500/25 to-sky-400/35 rounded-full blur-3xl opacity-80 group-hover:opacity-100 transition-opacity duration-500 animate-pulse-glow-3d pointer-events-none" />
+        {/* Ambient Warm Golden Glow Aura */}
+        <div className="absolute inset-0 bg-gradient-to-r from-amber-500/35 via-yellow-400/25 to-amber-600/35 rounded-full blur-3xl opacity-80 group-hover:opacity-100 transition-opacity duration-500 animate-pulse-glow-3d pointer-events-none" />
 
-        {/* Orbiting Radial Particle Ring */}
-        <div className="absolute inset-2 rounded-full border border-blue-400/20 animate-orbit-3d pointer-events-none" />
+        {/* Orbiting Golden Ring */}
+        <div className="absolute inset-2 rounded-full border border-amber-400/30 animate-orbit-3d pointer-events-none" />
 
-        {/* 3D Elevated Card with Continuous Animation */}
+        {/* 3D Circular Medallion */}
         <div
           ref={cardRef}
           style={
@@ -83,39 +83,39 @@ export function AnimatedLogo3D({
           }
           className={`${sizeDimensions[size]} ${
             !isHovered ? "animate-float-3d" : ""
-          } relative rounded-3xl bg-gradient-to-br from-white via-[#F5F8FF] to-white/95 p-4 shadow-[0_25px_60px_-15px_rgba(72,128,255,0.4),0_15px_30px_rgba(0,0,0,0.08)] border-2 border-white/90 backdrop-blur-xl flex items-center justify-center`}
+          } relative rounded-full bg-[#24282B] p-1.5 shadow-[0_25px_60px_-10px_rgba(217,119,6,0.45),0_15px_30px_rgba(0,0,0,0.6)] border-4 border-amber-400/80 ring-2 ring-amber-500/40 flex items-center justify-center overflow-hidden`}
         >
-          {/* Internal Specular Glass Highlight */}
+          {/* Specular Light Sweep Across Golden Disc */}
           <div
-            style={{ transform: "translateZ(15px)" }}
-            className="absolute inset-0 rounded-3xl bg-gradient-to-tr from-transparent via-white/50 to-transparent pointer-events-none opacity-70 group-hover:opacity-100 transition-opacity duration-300"
+            style={{ transform: "translateZ(20px)" }}
+            className="absolute inset-0 rounded-full bg-gradient-to-tr from-transparent via-amber-200/20 to-transparent pointer-events-none opacity-80 group-hover:opacity-100 transition-opacity duration-300"
           />
 
-          {/* Elevated 3D Logo Layer */}
+          {/* Elevated Golden Compass & Eagle Logo Layer */}
           <div
             style={{
-              transform: "translateZ(38px)",
-              filter: "drop-shadow(0 14px 20px rgba(15, 23, 42, 0.25))",
+              transform: "translateZ(30px)",
+              filter: "drop-shadow(0 10px 18px rgba(0, 0, 0, 0.5))",
             }}
-            className="w-full h-full relative flex items-center justify-center"
+            className="w-full h-full relative rounded-full overflow-hidden flex items-center justify-center"
           >
             <img
-              src="/logo.png"
-              alt="Epic Craft Official Logo"
-              className="w-full h-full object-contain pointer-events-none transform group-hover:scale-105 transition-transform duration-300"
+              src="/logo-circle.png"
+              alt="Epic Craft Golden Medallion Logo"
+              className="w-full h-full object-cover pointer-events-none transform group-hover:scale-105 transition-transform duration-300 select-none"
             />
           </div>
 
-          {/* Inner Glowing Bevel */}
+          {/* Inner Golden Rim Bevel */}
           <div
-            style={{ transform: "translateZ(8px)" }}
-            className="absolute inset-1 rounded-[22px] border border-blue-400/25 pointer-events-none"
+            style={{ transform: "translateZ(10px)" }}
+            className="absolute inset-1 rounded-full border border-amber-300/40 pointer-events-none"
           />
         </div>
       </div>
 
       {showSubtitle && (
-        <div className="mt-2 text-center">
+        <div className="mt-3 text-center">
           <h1 className="text-2xl font-black text-dash-textPrimary tracking-tight">
             Epic Craft
           </h1>

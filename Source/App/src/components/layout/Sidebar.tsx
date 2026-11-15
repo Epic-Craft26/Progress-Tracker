@@ -45,11 +45,11 @@ export function Sidebar({ role, onLogout }: SidebarProps) {
     <aside className="w-64 bg-white border-r border-dash-border/60 flex flex-col h-screen fixed left-0 top-0 z-30 select-none">
       {/* Brand Header */}
       <div className="h-16 flex items-center px-6 border-b border-dash-border/60 gap-3">
-        <div className="w-10 h-10 rounded-xl overflow-hidden shadow-xs shrink-0 bg-white border border-dash-border/60 flex items-center justify-center p-1">
+        <div className="w-10 h-10 rounded-full overflow-hidden shadow-md shrink-0 bg-[#24282B] border-2 border-amber-400/80 ring-1 ring-amber-500/30 flex items-center justify-center p-0.5">
           <img
-            src="/logo.png"
-            alt="Epic Craft Logo"
-            className="w-full h-full object-contain"
+            src="/logo-circle.png"
+            alt="Epic Craft Golden Medallion Logo"
+            className="w-full h-full object-cover"
           />
         </div>
         <div>
