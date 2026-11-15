@@ -47,6 +47,9 @@ export default function CeoProjectsPage() {
   // Detail Modal
   const [selectedProject, setSelectedProject] = useState<any | null>(null);
   const [copiedEmails, setCopiedEmails] = useState(false);
+  const [isSyncingDrive, setIsSyncingDrive] = useState(false);
+  const [syncDriveMsg, setSyncDriveMsg] = useState("");
+  const [syncDriveError, setSyncDriveError] = useState("");
 
   // Delete State
   const [projectToDelete, setProjectToDelete] = useState<any | null>(null);
@@ -146,6 +149,34 @@ export default function CeoProjectsPage() {
       setEditError(err.message);
     } finally {
       setIsSavingEdit(false);
+    }
+  };
+
+  // Google Drive Automated Subfolder Provisioning
+  const handleSyncDrive = async (projectId: string) => {
+    setIsSyncingDrive(true);
+    setSyncDriveMsg("");
+    setSyncDriveError("");
+
+    try {
+      const res = await fetch(`/api/projects/${projectId}/sync-drive`, {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to create folder on Google Drive");
+
+      setSyncDriveMsg(data.message);
+      if (selectedProject?.id === projectId) {
+        setSelectedProject((prev: any) => ({
+          ...prev,
+          driveFolderUrl: data.folderUrl,
+        }));
+      }
+      loadProjects();
+    } catch (err: any) {
+      setSyncDriveError(err.message);
+    } finally {
+      setIsSyncingDrive(false);
     }
   };
 
@@ -491,7 +522,7 @@ export default function CeoProjectsPage() {
 
             {/* Google Drive Cloud Workspace Hub */}
             <div className="p-4 rounded-xl bg-blue-50/60 border border-blue-100 space-y-3">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-lg bg-blue-500 text-white flex items-center justify-center shadow-xs">
                     <Cloud className="w-4 h-4" />
@@ -505,18 +536,45 @@ export default function CeoProjectsPage() {
                     </p>
                   </div>
                 </div>
-                {selectedProject.driveFolderUrl && (
-                  <a
-                    href={selectedProject.driveFolderUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-500 text-white text-xs font-bold shadow-xs hover:bg-brand-600 transition-colors"
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleSyncDrive(selectedProject.id)}
+                    loading={isSyncingDrive}
+                    className="text-xs font-bold text-brand-600 bg-white"
                   >
-                    <span>Open Drive</span>
-                    <ExternalLink className="w-3.5 h-3.5" />
-                  </a>
-                )}
+                    Auto-Create Drive Folder
+                  </Button>
+                  {selectedProject.driveFolderUrl && (
+                    <a
+                      href={selectedProject.driveFolderUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-500 text-white text-xs font-bold shadow-xs hover:bg-brand-600 transition-colors"
+                    >
+                      <span>Open Drive</span>
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  )}
+                </div>
               </div>
+
+              {syncDriveMsg && (
+                <div className="p-2.5 rounded bg-emerald-50 border border-emerald-200 text-xs font-semibold text-status-completed flex items-center gap-1.5">
+                  <Check className="w-3.5 h-3.5 shrink-0" />
+                  <span>{syncDriveMsg}</span>
+                </div>
+              )}
+
+              {syncDriveError && (
+                <div className="p-2.5 rounded bg-red-50 border border-red-200 text-xs font-semibold text-status-delayed flex items-start gap-1.5">
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                  <div className="space-y-1">
+                    <span>{syncDriveError}</span>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Assigned Contributors Breakdown */}

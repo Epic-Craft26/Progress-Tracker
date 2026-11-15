@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { CreateProjectSchema } from "@/lib/validations";
 import { getNextProjectCode } from "@/lib/projects";
+import { createProjectDriveFolder } from "@/lib/drive";
 
 export async function GET(request: Request) {
   try {
@@ -104,8 +105,16 @@ export async function POST(request: Request) {
       tasks,
     } = result.data;
     const projectCode = await getNextProjectCode();
+    const uniqueAssigneeIds = Array.from(new Set(assigneeIds));
 
-    // Default to Epic Craft Master Drive Workspace
+    // Fetch assignee emails for automatic Drive permission sharing
+    const assignees = await prisma.user.findMany({
+      where: { id: { in: uniqueAssigneeIds } },
+      select: { email: true },
+    });
+    const assigneeEmails = assignees.map((a) => a.email);
+
+    // Default master drive settings
     const defaultMasterDrive =
       process.env.GOOGLE_DRIVE_MASTER_FOLDER_URL ||
       "https://drive.google.com/drive/folders/1BisxzQ0xkseowtbaTe5FNhtTCRE8JFJf?usp=drive_link";
@@ -113,12 +122,28 @@ export async function POST(request: Request) {
       process.env.GOOGLE_DRIVE_MASTER_FOLDER_ID ||
       "1BisxzQ0xkseowtbaTe5FNhtTCRE8JFJf";
 
-    const driveFolderId = masterFolderId;
-    const driveFolderUrl = customDriveUrl?.trim()
+    let driveFolderId = masterFolderId;
+    let driveFolderUrl = customDriveUrl?.trim()
       ? customDriveUrl.trim()
       : defaultMasterDrive;
 
-    const uniqueAssigneeIds = Array.from(new Set(assigneeIds));
+    // Attempt automated Google Drive folder creation via Service Account
+    try {
+      const createdFolder = await createProjectDriveFolder({
+        projectCode,
+        projectTitle: title,
+        assigneeEmails,
+        masterFolderId,
+      });
+
+      if (createdFolder) {
+        driveFolderId = createdFolder.folderId;
+        driveFolderUrl = createdFolder.folderUrl;
+        console.log(`[Google Drive] Created folder ${projectCode} - ${title}: ${driveFolderUrl}`);
+      }
+    } catch (driveErr) {
+      console.warn("[Google Drive] Automated folder creation skipped:", driveErr);
+    }
 
     const project = await prisma.project.create({
       data: {
