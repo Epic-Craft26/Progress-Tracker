@@ -10,9 +10,6 @@ import {
   ShieldCheck,
   Eye,
   EyeOff,
-  KeyRound,
-  CheckCircle2,
-  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { AnimatedLogo3D } from "@/components/ui/AnimatedLogo3D";
@@ -77,29 +74,10 @@ function LoginFormContent() {
   };
 
   return (
-    <div className="min-h-screen bg-dash-bg flex flex-col justify-center items-center px-4 py-10 select-none">
-      <div className="w-full max-w-4xl">
-        {/* Brand Header with 3D Animated Circular Medallion Logo */}
-        <div className="mb-8">
-          <AnimatedLogo3D size="hero" />
-        </div>
-
-        {/* Enterprise Login Card - 2 Column Equal Grid */}
+    <div className="min-h-screen bg-dash-bg flex flex-col justify-center items-center px-4 py-8 select-none">
+      <div className="w-full max-w-3xl">
+        {/* Main Enterprise Sign-In Card */}
         <div className="bg-white rounded-dash p-6 sm:p-8 md:p-10 shadow-dashHover border border-dash-border/60">
-          {/* Card Header */}
-          <div className="mb-7 pb-4 border-b border-dash-border/60 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-            <div>
-              <h2 className="text-xl font-bold text-dash-textPrimary">Sign In to Workspace</h2>
-              <p className="text-xs text-dash-textSecondary mt-0.5">
-                Choose your authentication method to access the Epic Craft portal
-              </p>
-            </div>
-            <div className="flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200/80 rounded-full text-[11px] font-semibold w-fit">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Workspace Active</span>
-            </div>
-          </div>
-
           {error && (
             <div className="mb-6 p-3.5 bg-red-50 border border-red-200 rounded-smDash flex items-start gap-2.5 text-xs text-status-delayed font-semibold animate-in fade-in">
               <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
@@ -108,147 +86,123 @@ function LoginFormContent() {
           )}
 
           {/* Equal 2-Column Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative items-stretch">
-            {/* Left Column: Account Credentials Form */}
-            <div className="flex flex-col justify-between">
-              <div>
-                <div className="mb-4">
-                  <h3 className="text-sm font-bold text-dash-textPrimary flex items-center gap-2">
-                    <KeyRound className="w-4 h-4 text-brand-500" />
-                    <span>Account Credentials</span>
-                  </h3>
-                  <p className="text-xs text-dash-textSecondary mt-0.5">
-                    Sign in with username or registered email and password
-                  </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 relative items-center">
+            {/* Left Column: Password Credentials Form */}
+            <div className="flex flex-col justify-center">
+              <div className="mb-5">
+                <h2 className="text-xl font-bold text-dash-textPrimary">Sign In</h2>
+                <p className="text-xs text-dash-textSecondary mt-1">
+                  Enter your credentials to access the workspace
+                </p>
+              </div>
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-dash-textPrimary mb-1.5 uppercase tracking-wider">
+                    Email / Username
+                  </label>
+                  <div className="relative">
+                    <Mail className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. karan or user@gmail.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full bg-[#F5F6FA] text-sm text-dash-textPrimary rounded-smDash pl-10 pr-4 py-2.5 border border-dash-border/80 focus:outline-none focus:border-brand-500 font-medium"
+                    />
+                  </div>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <label className="block text-xs font-bold text-dash-textPrimary mb-1.5 uppercase tracking-wider">
-                      Email / Username
-                    </label>
-                    <div className="relative">
-                      <Mail className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                      <input
-                        type="text"
-                        required
-                        placeholder="e.g. karan or user@gmail.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="w-full bg-[#F5F6FA] text-sm text-dash-textPrimary rounded-smDash pl-10 pr-4 py-2.5 border border-dash-border/80 focus:outline-none focus:border-brand-500 font-medium"
-                      />
-                    </div>
+                <div>
+                  <label className="block text-xs font-bold text-dash-textPrimary mb-1.5 uppercase tracking-wider">
+                    Password
+                  </label>
+                  <div className="relative">
+                    <Lock className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      required
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full bg-[#F5F6FA] text-sm text-dash-textPrimary rounded-smDash pl-10 pr-10 py-2.5 border border-dash-border/80 focus:outline-none focus:border-brand-500 font-medium"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="w-4 h-4" />
+                      ) : (
+                        <Eye className="w-4 h-4" />
+                      )}
+                    </button>
                   </div>
+                </div>
 
-                  <div>
-                    <label className="block text-xs font-bold text-dash-textPrimary mb-1.5 uppercase tracking-wider">
-                      Password
-                    </label>
-                    <div className="relative">
-                      <Lock className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                      <input
-                        type={showPassword ? "text" : "password"}
-                        required
-                        placeholder="••••••••"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="w-full bg-[#F5F6FA] text-sm text-dash-textPrimary rounded-smDash pl-10 pr-10 py-2.5 border border-dash-border/80 focus:outline-none focus:border-brand-500 font-medium"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
-                        aria-label={showPassword ? "Hide password" : "Show password"}
-                      >
-                        {showPassword ? (
-                          <EyeOff className="w-4 h-4" />
-                        ) : (
-                          <Eye className="w-4 h-4" />
-                        )}
-                      </button>
-                    </div>
-                  </div>
+                <div className="flex items-center justify-between pt-0.5">
+                  <label className="flex items-center gap-2 cursor-pointer text-xs text-dash-textSecondary font-medium">
+                    <input
+                      type="checkbox"
+                      checked={rememberLogin}
+                      onChange={(e) => setRememberLogin(e.target.checked)}
+                      className="w-3.5 h-3.5 text-brand-500 rounded accent-brand-500 cursor-pointer"
+                    />
+                    <span>Remember me</span>
+                  </label>
+                </div>
 
-                  <div className="flex items-center justify-between pt-1">
-                    <label className="flex items-center gap-2 cursor-pointer text-xs text-dash-textSecondary font-medium">
-                      <input
-                        type="checkbox"
-                        checked={rememberLogin}
-                        onChange={(e) => setRememberLogin(e.target.checked)}
-                        className="w-3.5 h-3.5 text-brand-500 rounded accent-brand-500 cursor-pointer"
-                      />
-                      <span>Remember me</span>
-                    </label>
-                  </div>
-
-                  <Button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full mt-2 py-2.5 text-sm font-bold shadow-md"
-                    icon={<ArrowRight className="w-4 h-4" />}
-                  >
-                    {loading ? "Authenticating..." : "Sign In with Password"}
-                  </Button>
-                </form>
-              </div>
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full mt-2 py-2.5 text-sm font-bold shadow-md"
+                  icon={<ArrowRight className="w-4 h-4" />}
+                >
+                  {loading ? "Authenticating..." : "Sign In to Workspace"}
+                </Button>
+              </form>
             </div>
 
             {/* Center Divider: Vertical on desktop with 'OR' badge */}
             <div className="hidden md:flex absolute left-1/2 top-0 bottom-0 -translate-x-1/2 flex-col items-center justify-center pointer-events-none">
-              <div className="h-full w-px bg-dash-border/70" />
-              <span className="absolute bg-white px-2.5 py-1 text-[10px] font-bold text-gray-400 uppercase tracking-widest border border-dash-border/80 rounded-full shadow-xs">
+              <div className="h-full w-px bg-dash-border/60" />
+              <span className="absolute bg-white px-2.5 py-1 text-[10px] font-bold text-gray-400 uppercase tracking-widest border border-dash-border/70 rounded-full shadow-xs">
                 OR
               </span>
             </div>
 
             {/* Mobile Divider */}
             <div className="flex md:hidden relative my-2 items-center justify-center">
-              <div className="w-full border-t border-dash-border/70" />
+              <div className="w-full border-t border-dash-border/60" />
               <span className="absolute bg-white px-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
                 OR
               </span>
             </div>
 
-            {/* Right Column: Google Workspace SSO (Equal Grid) */}
-            <div className="md:pl-6 flex flex-col justify-between h-full bg-[#FAFBFE] md:bg-transparent p-5 md:p-0 rounded-dash md:rounded-none border md:border-0 border-dash-border/60">
-              <div>
-                <div className="mb-4">
-                  <h3 className="text-sm font-bold text-dash-textPrimary flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-amber-500" />
-                    <span>Google Single Sign-On</span>
-                  </h3>
-                  <p className="text-xs text-dash-textSecondary mt-0.5">
-                    Fast 1-click access with your registered company Google account
-                  </p>
-                </div>
-
-                <div className="space-y-3 p-4 rounded-dash bg-[#F4F6FC]/70 border border-dash-border/80 text-xs">
-                  <div className="flex items-start gap-2.5">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                    <div>
-                      <p className="font-semibold text-dash-textPrimary">Instant Role Routing</p>
-                      <p className="text-[11px] text-dash-textSecondary mt-0.5 leading-relaxed">
-                        CEO directs to Command Center; Employees direct to assigned tasks.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-2.5">
-                    <ShieldCheck className="w-4 h-4 text-brand-500 shrink-0 mt-0.5" />
-                    <div>
-                      <p className="font-semibold text-dash-textPrimary">Verified Access</p>
-                      <p className="text-[11px] text-dash-textSecondary mt-0.5 leading-relaxed">
-                        Only Google accounts registered in the Team Directory are granted access.
-                      </p>
-                    </div>
-                  </div>
-                </div>
+            {/* Right Column: Golden Logo on top of Google Sign-In */}
+            <div className="md:pl-6 flex flex-col items-center justify-center text-center">
+              {/* 3D Animated Circular Golden Medallion Logo */}
+              <div className="mb-2">
+                <AnimatedLogo3D size="lg" showSubtitle={false} />
               </div>
 
-              <div className="pt-6">
+              <div className="mb-5">
+                <h3 className="text-xl font-black text-dash-textPrimary tracking-tight">
+                  Epic Craft
+                </h3>
+                <p className="text-xs text-dash-textSecondary mt-0.5 font-medium">
+                  Enterprise Project Progress Tracker
+                </p>
+              </div>
+
+              {/* Clean Google Sign-In Button */}
+              <div className="w-full max-w-xs">
                 <a
                   href="/api/auth/google"
-                  className="w-full flex items-center justify-center gap-3 py-3 px-4 bg-white border-2 border-brand-500/30 hover:border-brand-500 hover:bg-brand-50/30 text-dash-textPrimary rounded-dash font-bold text-sm shadow-sm transition-all duration-200 group"
+                  className="w-full flex items-center justify-center gap-3 py-3 px-5 bg-white border-2 border-brand-500/30 hover:border-brand-500 hover:bg-brand-50/20 text-dash-textPrimary rounded-dash font-bold text-sm shadow-sm transition-all duration-200 group"
                 >
                   <svg className="w-5 h-5 shrink-0 transition-transform group-hover:scale-110" viewBox="0 0 24 24">
                     <path
@@ -272,16 +226,13 @@ function LoginFormContent() {
                     Sign in with Google
                   </span>
                 </a>
-                <p className="text-[11px] text-center text-dash-textSecondary mt-2">
-                  Authenticated via Google Cloud OAuth 2.0
-                </p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Corporate Security Notice */}
-        <div className="mt-8 text-center text-xs text-gray-400 space-y-1">
+        <div className="mt-6 text-center text-xs text-gray-400 space-y-1">
           <div className="flex items-center justify-center gap-1.5 text-gray-400">
             <ShieldCheck className="w-3.5 h-3.5 text-brand-500" />
             <span>256-bit Encrypted Workspace Authentication</span>
