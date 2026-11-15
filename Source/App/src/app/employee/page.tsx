@@ -14,6 +14,9 @@ import {
   FileCheck,
   PlusCircle,
   Cloud,
+  Check,
+  RotateCcw,
+  ListTodo,
 } from "lucide-react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { MetricCard } from "@/components/dashboard/MetricCard";
@@ -71,6 +74,35 @@ export default function EmployeeDashboardPage() {
     setUpdateError("");
   };
 
+  const handleToggleTask = async (projectId: string, taskId: string, currentStatus: boolean) => {
+    try {
+      const res = await fetch(`/api/tasks/${taskId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isCompleted: !currentStatus }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to toggle task");
+
+      // Update local state smoothly
+      setProjects((prev) =>
+        prev.map((proj) => {
+          if (proj.id !== projectId) return proj;
+          const updatedTasks = proj.tasks.map((t: any) =>
+            t.id === taskId ? { ...t, isCompleted: !currentStatus } : t
+          );
+          return {
+            ...proj,
+            progress: data.projectProgress ?? proj.progress,
+            tasks: updatedTasks,
+          };
+        })
+      );
+    } catch (err: any) {
+      alert(err.message);
+    }
+  };
+
   const handlePostUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!activeProject) return;
@@ -79,6 +111,10 @@ export default function EmployeeDashboardPage() {
     setUpdateSuccess("");
 
     try {
+      const formattedAttachment = attachments.trim()
+        ? `${attachments.trim()}`
+        : undefined;
+
       const res = await fetch("/api/updates", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -86,7 +122,7 @@ export default function EmployeeDashboardPage() {
           projectId: activeProject.id,
           progress: Number(progressVal),
           note,
-          attachments: attachments.trim() || undefined,
+          attachments: formattedAttachment,
           status: markForReview ? "PENDING_REVIEW" : "IN_PROGRESS",
         }),
       });
@@ -114,16 +150,21 @@ export default function EmployeeDashboardPage() {
     );
   }
 
-  const activeProjects = projects.filter((p) => p.status === "IN_PROGRESS");
+  const activeProjects = projects.filter(
+    (p) =>
+      p.status === "IN_PROGRESS" ||
+      p.status === "NOT_STARTED" ||
+      p.status === "REVISION_REQUESTED"
+  );
 
   return (
     <AppLayout user={user} title="My Progress & Assignments">
-      {/* KPI Cards Row (Personalized) */}
+      {/* KPI Cards Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <MetricCard
-          title="My Active Tasks"
+          title="Active Projects"
           value={stats?.active || 0}
-          trend={{ value: "In progress", isUp: true }}
+          trend={{ value: "Ongoing", isUp: true }}
           icon={<Briefcase className="w-6 h-6 text-brand-500" />}
           iconBgColor="bg-blue-50"
         />
@@ -142,9 +183,9 @@ export default function EmployeeDashboardPage() {
           iconBgColor="bg-emerald-50"
         />
         <MetricCard
-          title="On-Time Rate"
+          title="On-Time Delivery"
           value={`${stats?.onTimeRate ?? 100}%`}
-          trend={{ value: "+2%", isUp: true }}
+          trend={{ value: "+100%", isUp: true }}
           icon={<Award className="w-6 h-6 text-indigo-500" />}
           iconBgColor="bg-indigo-50"
         />
@@ -157,7 +198,7 @@ export default function EmployeeDashboardPage() {
             My Assigned Projects
           </h2>
           <p className="text-xs text-dash-textSecondary mt-0.5">
-            Click "Post Progress" to record work milestones and update the CEO live
+            Check off milestones, log progress updates, and sync files to your Google Drive workspace
           </p>
         </div>
       </div>
@@ -173,7 +214,7 @@ export default function EmployeeDashboardPage() {
             No active projects right now
           </h3>
           <p className="text-xs text-gray-400 mt-1 max-w-sm mx-auto">
-            You're currently all caught up! New assignments from the CEO will appear
+            You're currently all caught up! New assignments from CEO Karan will appear
             here immediately.
           </p>
         </Card>
@@ -181,10 +222,15 @@ export default function EmployeeDashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {activeProjects.map((p) => {
             const isOverdue = new Date(p.deadline) < new Date();
+            const latestApproval = p.approvals?.[0];
+            const isRevision = p.status === "REVISION_REQUESTED";
+
             return (
               <Card
                 key={p.id}
-                className="hover:shadow-dashHover transition-all flex flex-col justify-between"
+                className={`hover:shadow-dashHover transition-all flex flex-col justify-between ${
+                  isRevision ? "border-amber-300 bg-amber-50/20" : ""
+                }`}
               >
                 <div>
                   {/* Top Bar */}
@@ -197,6 +243,16 @@ export default function EmployeeDashboardPage() {
                       <StatusBadge status={p.status} />
                     </div>
                   </div>
+
+                  {/* Revision Alert if any */}
+                  {isRevision && latestApproval?.feedback && (
+                    <div className="mb-3 p-2.5 rounded-smDash bg-amber-50 border border-amber-200 text-xs text-amber-900">
+                      <strong className="block font-bold text-[11px] uppercase tracking-wider text-amber-700">
+                        CEO Revision Request:
+                      </strong>
+                      <span className="mt-0.5 block">{latestApproval.feedback}</span>
+                    </div>
+                  )}
 
                   {/* Title & Summary */}
                   <h3 className="text-base font-bold text-dash-textPrimary mb-1.5 line-clamp-1">
@@ -216,6 +272,47 @@ export default function EmployeeDashboardPage() {
                     </div>
                     <ProgressBar value={p.progress} size="md" />
                   </div>
+
+                  {/* Interactive Milestones / Subtasks Checklist */}
+                  {p.tasks && p.tasks.length > 0 && (
+                    <div className="mb-4 p-3 bg-gray-50 rounded-lg border border-dash-border/60">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-[11px] font-bold text-dash-textPrimary uppercase tracking-wider flex items-center gap-1">
+                          <ListTodo className="w-3.5 h-3.5 text-brand-500" />
+                          Milestones ({p.tasks.filter((t: any) => t.isCompleted).length}/{p.tasks.length})
+                        </span>
+                        <span className="text-[10px] text-gray-400">Check to complete</span>
+                      </div>
+                      <div className="space-y-1.5">
+                        {p.tasks.map((task: any) => (
+                          <div
+                            key={task.id}
+                            onClick={() => handleToggleTask(p.id, task.id, task.isCompleted)}
+                            className="flex items-center gap-2 p-1.5 rounded hover:bg-white cursor-pointer transition-colors text-xs select-none"
+                          >
+                            <div
+                              className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${
+                                task.isCompleted
+                                  ? "bg-status-completed border-status-completed text-white"
+                                  : "border-gray-300 bg-white"
+                              }`}
+                            >
+                              {task.isCompleted && <Check className="w-3 h-3 stroke-[3]" />}
+                            </div>
+                            <span
+                              className={`font-medium flex-1 truncate ${
+                                task.isCompleted
+                                  ? "line-through text-gray-400"
+                                  : "text-dash-textPrimary"
+                              }`}
+                            >
+                              {task.title}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
                   {/* Deadline & Role */}
                   <div className="flex items-center justify-between text-xs text-dash-textSecondary pt-3 border-t border-dash-border/40 mb-4">
@@ -339,61 +436,62 @@ export default function EmployeeDashboardPage() {
             <textarea
               required
               rows={3}
-              placeholder="What tasks were finished? Any blockers or notes for CEO review..."
+              placeholder="What tasks or 3D models were finished? Any research findings or notes for CEO review..."
               value={note}
               onChange={(e) => setNote(e.target.value)}
               className="w-full bg-[#F5F6FA] text-sm text-dash-textPrimary rounded-smDash p-3 border border-dash-border/80 focus:outline-none focus:border-brand-500 font-medium"
             />
           </div>
 
-          {/* Cloud Research / Drive Deliverable URL */}
+          {/* Cloud Deliverable URL */}
           <div>
-            <label className="block text-xs font-bold text-dash-textPrimary mb-1.5 uppercase tracking-wider">
-              Cloud Research / Drive Deliverable Link (Optional)
-            </label>
-            <div className="relative">
-              <Cloud className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input
-                type="url"
-                placeholder="https://drive.google.com/... or Figma / Google Doc link"
-                value={attachments}
-                onChange={(e) => setAttachments(e.target.value)}
-                className="w-full bg-[#F5F6FA] text-sm text-dash-textPrimary rounded-smDash pl-10 pr-4 py-2.5 border border-dash-border/80 focus:outline-none focus:border-brand-500 font-medium"
-              />
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-bold text-dash-textPrimary uppercase tracking-wider flex items-center gap-1.5">
+                <Cloud className="w-3.5 h-3.5 text-brand-500" />
+                <span>Cloud Deliverable / Research Link (Optional)</span>
+              </label>
             </div>
-            <p className="text-[11px] text-gray-400 mt-1">
-              Store your project research and files on Google Drive and link them here.
+            <input
+              type="url"
+              placeholder="https://drive.google.com/... or https://docs.google.com/..."
+              value={attachments}
+              onChange={(e) => setAttachments(e.target.value)}
+              className="w-full bg-[#F5F6FA] text-xs font-mono text-dash-textPrimary rounded-smDash p-3 border border-dash-border/80 focus:outline-none focus:border-brand-500 font-medium"
+            />
+            <p className="text-[11px] text-dash-textSecondary mt-1">
+              Paste link to Google Drive folder, Google Docs, Figma, or GitHub deliverable.
             </p>
           </div>
 
-          {/* Mark for Review Checkbox */}
-          <div className="flex items-center gap-2 p-3 bg-gray-50 border border-dash-border/60 rounded-smDash">
+          {/* Ready for CEO Sign-Off Toggle */}
+          <div className="p-3 bg-gray-50 rounded-smDash border border-dash-border/60 flex items-center justify-between">
+            <div>
+              <span className="text-xs font-bold text-dash-textPrimary block">
+                Submit for CEO Review & Approval
+              </span>
+              <span className="text-[11px] text-dash-textSecondary">
+                Places project in the CEO sign-off queue for final verification
+              </span>
+            </div>
             <input
               type="checkbox"
-              id="markForReview"
               checked={markForReview}
               onChange={(e) => setMarkForReview(e.target.checked)}
-              className="w-4 h-4 text-brand-500 rounded accent-brand-500 cursor-pointer"
+              className="w-4 h-4 rounded text-brand-500 focus:ring-brand-500 border-gray-300"
             />
-            <label
-              htmlFor="markForReview"
-              className="text-xs font-semibold text-dash-textPrimary cursor-pointer"
-            >
-              Ready for CEO Approval (Marks project as 100% complete)
-            </label>
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-3 border-t border-dash-border/40">
+          <div className="flex items-center justify-end gap-3 pt-2">
             <Button
               type="button"
               variant="outline"
+              size="sm"
               onClick={() => setActiveProject(null)}
-              disabled={submitting}
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={submitting}>
-              {submitting ? "Saving Update..." : "Post Update to Feed"}
+            <Button type="submit" size="sm" loading={submitting}>
+              Submit Progress Log
             </Button>
           </div>
         </form>

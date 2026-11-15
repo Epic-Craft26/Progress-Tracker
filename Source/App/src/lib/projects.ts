@@ -67,7 +67,19 @@ export async function getCeoDashboardStats() {
 }
 
 export async function getNextProjectCode(): Promise<string> {
-  const count = await prisma.project.count();
-  const nextNum = (count + 1).toString().padStart(3, "0");
+  const projects = await prisma.project.findMany({
+    select: { code: true },
+  });
+
+  let maxNum = 0;
+  for (const p of projects) {
+    const match = p.code.match(/EC-PRJ-(\d+)/);
+    if (match) {
+      const num = parseInt(match[1], 10);
+      if (num > maxNum) maxNum = num;
+    }
+  }
+
+  const nextNum = (maxNum + 1).toString().padStart(3, "0");
   return `EC-PRJ-${nextNum}`;
 }

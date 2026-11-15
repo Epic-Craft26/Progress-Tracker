@@ -14,6 +14,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status");
     const priority = searchParams.get("priority");
+    const category = searchParams.get("category");
     const search = searchParams.get("search");
 
     const where: any = {};
@@ -22,6 +23,9 @@ export async function GET(request: Request) {
     }
     if (priority && priority !== "ALL") {
       where.priority = priority;
+    }
+    if (category && category !== "ALL") {
+      where.category = category;
     }
     if (search) {
       where.OR = [
@@ -47,13 +51,15 @@ export async function GET(request: Request) {
             user: { select: { id: true, name: true, email: true } },
           },
         },
-        tasks: true,
+        tasks: {
+          orderBy: { createdAt: "asc" },
+        },
         updates: {
           include: { user: { select: { id: true, name: true, email: true } } },
           orderBy: { createdAt: "desc" },
         },
         _count: {
-          select: { updates: true },
+          select: { updates: true, tasks: true },
         },
       },
       orderBy: { updatedAt: "desc" },
@@ -70,7 +76,10 @@ export async function POST(request: Request) {
   try {
     const session = await getSession();
     if (!session || session.role !== "CEO") {
-      return NextResponse.json({ error: "Forbidden: Only CEO can create projects" }, { status: 403 });
+      return NextResponse.json(
+        { error: "Forbidden: Only CEO can create projects" },
+        { status: 403 }
+      );
     }
 
     const body = await request.json();
@@ -82,7 +91,18 @@ export async function POST(request: Request) {
       );
     }
 
-    const { title, summary, priority, deadline, assigneeIds, leadId, driveFolderUrl: customDriveUrl } = result.data;
+    const {
+      title,
+      summary,
+      category,
+      priority,
+      startDate,
+      deadline,
+      assigneeIds,
+      leadId,
+      driveFolderUrl: customDriveUrl,
+      tasks,
+    } = result.data;
     const projectCode = await getNextProjectCode();
 
     // Default to Epic Craft Master Drive Workspace
@@ -98,27 +118,42 @@ export async function POST(request: Request) {
       ? customDriveUrl.trim()
       : defaultMasterDrive;
 
+    const uniqueAssigneeIds = Array.from(new Set(assigneeIds));
+
     const project = await prisma.project.create({
       data: {
         code: projectCode,
         title,
         summary,
+        category: category || "General",
         priority,
         status: "NOT_STARTED",
         progress: 0,
+        startDate: startDate ? new Date(startDate) : new Date(),
         deadline: new Date(deadline),
         driveFolderId,
         driveFolderUrl,
         createdById: session.id,
         members: {
-          create: assigneeIds.map((userId) => ({
+          create: uniqueAssigneeIds.map((userId) => ({
             userId,
             memberRole: leadId && leadId === userId ? "LEAD" : "CONTRIBUTOR",
           })),
         },
+        tasks:
+          tasks && tasks.length > 0
+            ? {
+                create: tasks.map((t) => ({
+                  title: t.title,
+                  dueDate: t.dueDate ? new Date(t.dueDate) : null,
+                  assignedToId: leadId || assigneeIds[0],
+                })),
+              }
+            : undefined,
       },
       include: {
         members: { include: { user: true } },
+        tasks: true,
       },
     });
 

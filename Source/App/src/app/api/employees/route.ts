@@ -17,6 +17,8 @@ export async function GET() {
         id: true,
         name: true,
         email: true,
+        designation: true,
+        department: true,
         isActive: true,
         createdAt: true,
         assignedProjects: {
@@ -38,7 +40,10 @@ export async function GET() {
 
     const formatted = employees.map((emp) => {
       const activeCount = emp.assignedProjects.filter(
-        (ap) => ap.project.status === "IN_PROGRESS"
+        (ap) =>
+          ap.project.status === "IN_PROGRESS" ||
+          ap.project.status === "NOT_STARTED" ||
+          ap.project.status === "REVISION_REQUESTED"
       ).length;
       const completedCount = emp.assignedProjects.filter(
         (ap) => ap.project.status === "COMPLETED"
@@ -64,7 +69,10 @@ export async function POST(request: Request) {
   try {
     const session = await getSession();
     if (!session || session.role !== "CEO") {
-      return NextResponse.json({ error: "Forbidden: Only CEO can add employees" }, { status: 403 });
+      return NextResponse.json(
+        { error: "Forbidden: Only CEO can add employees" },
+        { status: 403 }
+      );
     }
 
     const body = await request.json();
@@ -76,7 +84,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { name, email } = result.data;
+    const { name, email, designation, department } = result.data;
     const initialPassword =
       result.data.initialPassword ||
       `EC-${Math.random().toString(36).slice(-4).toUpperCase()}${Math.floor(1000 + Math.random() * 9000)}`;
@@ -96,6 +104,8 @@ export async function POST(request: Request) {
       data: {
         name,
         email,
+        designation: designation || "Team Contributor",
+        department: department || "Operations",
         role: "EMPLOYEE",
         passwordHash,
         mustChangePassword: true, // Force change on first login
@@ -109,6 +119,8 @@ export async function POST(request: Request) {
           id: newEmployee.id,
           name: newEmployee.name,
           email: newEmployee.email,
+          designation: newEmployee.designation,
+          department: newEmployee.department,
         },
         temporaryKey: initialPassword,
       },

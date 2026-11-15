@@ -21,11 +21,11 @@ export async function GET() {
               },
             },
             tasks: {
-              where: { assignedToId: session.id },
+              orderBy: { createdAt: "asc" },
             },
             updates: {
               orderBy: { createdAt: "desc" },
-              take: 2,
+              take: 3,
               include: { user: true },
             },
             approvals: {
@@ -44,7 +44,12 @@ export async function GET() {
     }));
 
     const now = new Date();
-    const activeProjects = projects.filter((p) => p.status === "IN_PROGRESS");
+    const activeProjects = projects.filter(
+      (p) =>
+        p.status === "IN_PROGRESS" ||
+        p.status === "NOT_STARTED" ||
+        p.status === "REVISION_REQUESTED"
+    );
     const inReviewProjects = projects.filter((p) => p.status === "PENDING_REVIEW");
     const completedProjects = projects.filter((p) => p.status === "COMPLETED");
     const overdueProjects = projects.filter(
@@ -62,7 +67,6 @@ export async function GET() {
 
     return NextResponse.json({
       stats: {
-        totalAssigned: projects.length,
         active: activeProjects.length,
         inReview: inReviewProjects.length,
         completed: completedProjects.length,
@@ -72,7 +76,7 @@ export async function GET() {
       projects,
     });
   } catch (error: any) {
-    console.error("Employee dashboard error:", error);
+    console.error("Failed to load employee dashboard:", error);
     return NextResponse.json(
       { error: "Failed to load employee dashboard" },
       { status: 500 }

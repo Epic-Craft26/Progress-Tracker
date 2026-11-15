@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   Briefcase,
@@ -19,7 +20,10 @@ import { StatusBadge, PriorityBadge } from "@/components/ui/Badge";
 import { formatDate } from "@/lib/utils";
 import { UserSession } from "@/types";
 
-export default function EmployeeProjectsListPage() {
+function EmployeeProjectsContent() {
+  const searchParams = useSearchParams();
+  const search = searchParams?.get("search") || "";
+
   const [user, setUser] = useState<UserSession | null>(null);
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -30,12 +34,16 @@ export default function EmployeeProjectsListPage() {
       .then((d) => {
         if (d.user) setUser(d.user);
       });
+  }, []);
 
-    fetch("/api/projects")
+  useEffect(() => {
+    setLoading(true);
+    const url = search ? `/api/projects?search=${encodeURIComponent(search)}` : "/api/projects";
+    fetch(url)
       .then((r) => r.json())
       .then((d) => setProjects(d.projects || []))
       .finally(() => setLoading(false));
-  }, []);
+  }, [search]);
 
   if (!user) return null;
 
@@ -46,7 +54,7 @@ export default function EmployeeProjectsListPage() {
           Assigned Projects
         </h1>
         <p className="text-xs text-dash-textSecondary mt-0.5">
-          All projects where you are assigned as a contributor or lead
+          {search ? `Showing search results for "${search}"` : "All projects where you are assigned as a contributor or lead"}
         </p>
       </div>
 
@@ -58,9 +66,11 @@ export default function EmployeeProjectsListPage() {
         ) : projects.length === 0 ? (
           <div className="py-16 text-center">
             <FolderOpen className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <h3 className="text-sm font-bold text-dash-textPrimary">No assignments yet</h3>
+            <h3 className="text-sm font-bold text-dash-textPrimary">
+              {search ? "No matching projects found" : "No assignments yet"}
+            </h3>
             <p className="text-xs text-gray-400 mt-1 max-w-sm mx-auto">
-              You haven't been assigned to any projects yet.
+              {search ? "Try searching with a different keyword or project code." : "You haven't been assigned to any projects yet."}
             </p>
           </div>
         ) : (
@@ -112,7 +122,7 @@ export default function EmployeeProjectsListPage() {
                           href={p.driveFolderUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-blue-50 text-brand-600 hover:bg-brand-500 hover:text-white transition-colors font-semibold text-xs shadow-sm"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-blue-50 text-brand-600 hover:bg-brand-500 hover:text-white transition-colors font-bold text-xs"
                         >
                           <span>Open Drive</span>
                           <ExternalLink className="w-3 h-3" />
@@ -127,5 +137,13 @@ export default function EmployeeProjectsListPage() {
         )}
       </Card>
     </AppLayout>
+  );
+}
+
+export default function EmployeeProjectsListPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-xs text-gray-400">Loading...</div>}>
+      <EmployeeProjectsContent />
+    </Suspense>
   );
 }

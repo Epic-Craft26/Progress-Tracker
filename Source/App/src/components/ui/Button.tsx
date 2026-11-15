@@ -5,6 +5,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "outline" | "danger" | "ghost";
   size?: "sm" | "md" | "lg";
   icon?: React.ReactNode;
+  loading?: boolean;
 }
 
 export function Button({
@@ -15,6 +16,7 @@ export function Button({
   icon,
   className,
   disabled,
+  loading,
   ...props
 }: ButtonProps) {
   const base =
@@ -43,10 +45,14 @@ export function Button({
     <button
       type={type}
       className={cn(base, sizeStyles[size], variantStyles[variant], className)}
-      disabled={disabled}
+      disabled={disabled || loading}
       {...props}
     >
-      {icon && <span className="inline-flex shrink-0">{icon}</span>}
+      {loading ? (
+        <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-1.5 shrink-0" />
+      ) : (
+        icon && <span className="inline-flex shrink-0">{icon}</span>
+      )}
       {children}
     </button>
   );

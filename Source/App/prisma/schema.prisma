@@ -12,6 +12,8 @@ model User {
   name               String
   email              String           @unique // Google Drive account email
   role               String           @default("EMPLOYEE") // CEO | EMPLOYEE
+  designation        String?          // e.g. Senior 3D Artist, Frontend Engineer
+  department         String?          // e.g. 3D & Game Art, Engineering, Research
   passwordHash       String
   isActive           Boolean          @default(true)
   mustChangePassword Boolean          @default(false)
@@ -31,9 +33,11 @@ model Project {
   code            String           @unique // e.g. EC-PRJ-001
   title           String
   summary         String
+  category        String           @default("General")
   priority        String           @default("MEDIUM") // LOW | MEDIUM | HIGH | URGENT
   status          String           @default("NOT_STARTED") // NOT_STARTED | IN_PROGRESS | PENDING_REVIEW | REVISION_REQUESTED | COMPLETED
   progress        Int              @default(0) // 0-100
+  startDate       DateTime         @default(now())
   deadline        DateTime
   driveFolderId   String?
   driveFolderUrl  String?

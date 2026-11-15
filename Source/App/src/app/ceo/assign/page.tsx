@@ -2,11 +2,28 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { FolderPlus, Users, Calendar, AlertCircle, CheckCircle, Cloud, ArrowLeft, Copy, Check, ExternalLink } from "lucide-react";
 import Link from "next/link";
+import {
+  FolderPlus,
+  Users,
+  Calendar,
+  AlertCircle,
+  CheckCircle,
+  ExternalLink,
+  Cloud,
+  Copy,
+  Check,
+  UserPlus,
+  ArrowLeft,
+  ListPlus,
+  Trash2,
+  Tag,
+} from "lucide-react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { Avatar } from "@/components/ui/Avatar";
+import { PriorityBadge } from "@/components/ui/Badge";
 import { UserSession } from "@/types";
 
 const DEFAULT_MASTER_DRIVE =
@@ -20,15 +37,28 @@ export default function CeoAssignProjectPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
-  // Form states
+  // Form state
   const [title, setTitle] = useState("");
   const [summary, setSummary] = useState("");
+  const [category, setCategory] = useState("General");
   const [priority, setPriority] = useState<"LOW" | "MEDIUM" | "HIGH" | "URGENT">("MEDIUM");
+  const [startDate, setStartDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
   const [deadline, setDeadline] = useState("");
   const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
-  const [leadId, setLeadId] = useState("");
+  const [leadId, setLeadId] = useState<string>("");
   const [customDriveUrl, setCustomDriveUrl] = useState(DEFAULT_MASTER_DRIVE);
   const [copiedEmails, setCopiedEmails] = useState(false);
+
+  // Milestones State
+  const [tasks, setTasks] = useState<{ title: string; dueDate?: string }[]>([
+    { title: "Phase 1: Initial Research & Asset Brief" },
+    { title: "Phase 2: Core Development & Implementation" },
+    { title: "Phase 3: Final QA & Delivery to Drive" },
+  ]);
+  const [newTaskTitle, setNewTaskTitle] = useState("");
+  const [newTaskDueDate, setNewTaskDueDate] = useState("");
 
   useEffect(() => {
     fetch("/api/auth/me")
@@ -45,17 +75,18 @@ export default function CeoAssignProjectPage() {
   }, []);
 
   const toggleEmployee = (empId: string) => {
-    setSelectedEmployees((prev) => {
-      const exists = prev.includes(empId);
-      const updated = exists ? prev.filter((id) => id !== empId) : [...prev, empId];
-      if (exists && leadId === empId) {
-        setLeadId(updated[0] || "");
-      }
-      if (!exists && updated.length === 1) {
-        setLeadId(empId);
-      }
-      return updated;
-    });
+    const exists = selectedEmployees.includes(empId);
+    const updated = exists
+      ? selectedEmployees.filter((id) => id !== empId)
+      : [...selectedEmployees, empId];
+
+    setSelectedEmployees(updated);
+
+    if (exists && leadId === empId) {
+      setLeadId(updated[0] || "");
+    } else if (!exists && updated.length === 1) {
+      setLeadId(empId);
+    }
   };
 
   const copySelectedEmails = () => {
@@ -64,10 +95,25 @@ export default function CeoAssignProjectPage() {
       .map((e) => e.email)
       .join(", ");
     if (emails) {
-      navigator.clipboard.writeText(emails);
+      navigator.clipboard.writeText(emails).catch(() => {});
       setCopiedEmails(true);
       setTimeout(() => setCopiedEmails(false), 2500);
     }
+  };
+
+  const handleAddTask = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTaskTitle.trim()) return;
+    setTasks((prev) => [
+      ...prev,
+      { title: newTaskTitle.trim(), dueDate: newTaskDueDate || undefined },
+    ]);
+    setNewTaskTitle("");
+    setNewTaskDueDate("");
+  };
+
+  const handleRemoveTask = (idx: number) => {
+    setTasks((prev) => prev.filter((_, i) => i !== idx));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -92,11 +138,14 @@ export default function CeoAssignProjectPage() {
         body: JSON.stringify({
           title,
           summary,
+          category,
           priority,
+          startDate,
           deadline,
           assigneeIds: selectedEmployees,
           leadId: leadId || selectedEmployees[0],
           driveFolderUrl: customDriveUrl,
+          tasks: tasks.filter((t) => t.title.trim().length > 0),
         }),
       });
 
@@ -146,7 +195,7 @@ export default function CeoAssignProjectPage() {
                 New Project Assignment
               </h1>
               <p className="text-xs text-dash-textSecondary mt-0.5">
-                Automatically creates Google Drive folder and notifies assignees
+                Provision deliverables, set milestones, and connect team Google Drive workspace
               </p>
             </div>
           </div>
@@ -162,8 +211,7 @@ export default function CeoAssignProjectPage() {
             <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-smDash flex items-start gap-2.5 text-xs text-status-completed font-semibold">
               <CheckCircle className="w-4 h-4 shrink-0 mt-0.5" />
               <span>
-                Project created successfully! Drive folder provisioned and
-                notifications sent. Redirecting...
+                Project created successfully! Milestones assigned and notifications sent. Redirecting...
               </span>
             </div>
           )}
@@ -176,28 +224,33 @@ export default function CeoAssignProjectPage() {
               <input
                 type="text"
                 required
-                placeholder="e.g. Website Redesign & SEO Optimization"
+                placeholder="e.g. 3D Character Rigging & Animation Pack"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 className="w-full bg-[#F5F6FA] text-sm text-dash-textPrimary rounded-smDash px-4 py-2.5 border border-dash-border/80 focus:outline-none focus:border-brand-500 font-medium"
               />
             </div>
 
-            <div>
-              <label className="block text-xs font-bold text-dash-textPrimary mb-1.5 uppercase tracking-wider">
-                Project Summary / Scope *
-              </label>
-              <textarea
-                required
-                rows={3}
-                placeholder="Describe deliverables, required milestones, and success criteria..."
-                value={summary}
-                onChange={(e) => setSummary(e.target.value)}
-                className="w-full bg-[#F5F6FA] text-sm text-dash-textPrimary rounded-smDash px-4 py-2.5 border border-dash-border/80 focus:outline-none focus:border-brand-500 font-medium"
-              />
-            </div>
-
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-xs font-bold text-dash-textPrimary mb-1.5 uppercase tracking-wider">
+                  Category *
+                </label>
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="w-full bg-[#F5F6FA] text-sm text-dash-textPrimary rounded-smDash px-4 py-2.5 border border-dash-border/80 focus:outline-none focus:border-brand-500 font-medium"
+                >
+                  <option value="General">General</option>
+                  <option value="3D & Animation">3D & Animation</option>
+                  <option value="Game Development">Game Development</option>
+                  <option value="UI/UX Design">UI/UX Design</option>
+                  <option value="Software Engineering">Software Engineering</option>
+                  <option value="Research & Docs">Research & Docs</option>
+                  <option value="Marketing">Marketing</option>
+                </select>
+              </div>
+
               <div>
                 <label className="block text-xs font-bold text-dash-textPrimary mb-1.5 uppercase tracking-wider">
                   Priority
@@ -213,20 +266,134 @@ export default function CeoAssignProjectPage() {
                   <option value="URGENT">Urgent</option>
                 </select>
               </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-xs font-bold text-dash-textPrimary mb-1.5 uppercase tracking-wider">
+                  Start Date
+                </label>
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="w-full bg-[#F5F6FA] text-sm text-dash-textPrimary rounded-smDash px-4 py-2.5 border border-dash-border/80 focus:outline-none focus:border-brand-500 font-medium"
+                />
+              </div>
 
               <div>
                 <label className="block text-xs font-bold text-dash-textPrimary mb-1.5 uppercase tracking-wider">
-                  Deadline *
+                  Target Deadline *
                 </label>
-                <div className="relative">
-                  <input
-                    type="date"
-                    required
-                    value={deadline}
-                    onChange={(e) => setDeadline(e.target.value)}
-                    className="w-full bg-[#F5F6FA] text-sm text-dash-textPrimary rounded-smDash px-4 py-2.5 border border-dash-border/80 focus:outline-none focus:border-brand-500 font-medium"
-                  />
+                <input
+                  type="date"
+                  required
+                  value={deadline}
+                  onChange={(e) => setDeadline(e.target.value)}
+                  className="w-full bg-[#F5F6FA] text-sm text-dash-textPrimary rounded-smDash px-4 py-2.5 border border-dash-border/80 focus:outline-none focus:border-brand-500 font-medium"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-dash-textPrimary mb-1.5 uppercase tracking-wider">
+                Project Summary / Scope *
+              </label>
+              <textarea
+                required
+                rows={3}
+                placeholder="Describe deliverables, required milestones, research parameters, and final output format..."
+                value={summary}
+                onChange={(e) => setSummary(e.target.value)}
+                className="w-full bg-[#F5F6FA] text-sm text-dash-textPrimary rounded-smDash px-4 py-2.5 border border-dash-border/80 focus:outline-none focus:border-brand-500 font-medium"
+              />
+            </div>
+
+            {/* Milestones / Subtasks Breakdown */}
+            <div className="p-4 bg-gray-50/80 rounded-xl border border-dash-border/60 space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xs font-bold text-dash-textPrimary uppercase tracking-wider flex items-center gap-1.5">
+                    <ListPlus className="w-4 h-4 text-brand-500" />
+                    Project Milestones & Deliverables ({tasks.length})
+                  </h3>
+                  <p className="text-[11px] text-dash-textSecondary">
+                    Employees check off milestones to automatically drive project progress
+                  </p>
                 </div>
+              </div>
+
+              {/* Task list */}
+              <div className="space-y-2">
+                {tasks.map((task, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-center justify-between p-2.5 bg-white rounded-smDash border border-dash-border/60 text-xs"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="w-5 h-5 rounded-full bg-blue-50 text-brand-600 font-bold flex items-center justify-center text-[10px]">
+                        {idx + 1}
+                      </span>
+                      <span className="font-semibold text-dash-textPrimary">{task.title}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      {task.dueDate && (
+                        <span className="text-[10px] text-gray-400">
+                          Due {task.dueDate}
+                        </span>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveTask(idx)}
+                        className="text-gray-400 hover:text-status-delayed transition-colors"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Add Milestone Inline */}
+              <div className="pt-2 flex flex-col sm:flex-row items-center gap-2">
+                <input
+                  type="text"
+                  placeholder="New milestone name (e.g. Concept Sketches, Wireframes)..."
+                  value={newTaskTitle}
+                  onChange={(e) => setNewTaskTitle(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      if (newTaskTitle.trim()) {
+                        handleAddTask(e);
+                      }
+                    }
+                  }}
+                  className="flex-1 w-full bg-white text-xs text-dash-textPrimary rounded-smDash px-3 py-2 border border-dash-border/80 focus:outline-none focus:border-brand-500"
+                />
+                <input
+                  type="date"
+                  value={newTaskDueDate}
+                  onChange={(e) => setNewTaskDueDate(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      if (newTaskTitle.trim()) {
+                        handleAddTask(e);
+                      }
+                    }
+                  }}
+                  className="w-full sm:w-auto bg-white text-xs text-dash-textPrimary rounded-smDash px-3 py-2 border border-dash-border/80 focus:outline-none focus:border-brand-500"
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={handleAddTask}
+                  disabled={!newTaskTitle.trim()}
+                >
+                  Add Milestone
+                </Button>
               </div>
             </div>
 
@@ -248,46 +415,54 @@ export default function CeoAssignProjectPage() {
                 </a>
               </div>
               <div className="relative">
-                <Cloud className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
                   type="url"
-                  placeholder="https://drive.google.com/drive/folders/1BisxzQ0xkseowtbaTe5FNhtTCRE8JFJf?usp=drive_link"
+                  required
                   value={customDriveUrl}
                   onChange={(e) => setCustomDriveUrl(e.target.value)}
-                  className="w-full bg-[#F5F6FA] text-sm text-dash-textPrimary rounded-smDash pl-10 pr-4 py-2.5 border border-dash-border/80 focus:outline-none focus:border-brand-500 font-medium"
+                  placeholder="https://drive.google.com/drive/folders/..."
+                  className="w-full bg-[#F5F6FA] text-xs font-mono text-dash-textPrimary rounded-smDash px-4 py-2.5 border border-dash-border/80 focus:outline-none focus:border-brand-500"
                 />
               </div>
-              <p className="text-[11px] text-dash-textSecondary mt-1.5 leading-relaxed">
-                Defaulted to your master Google Drive workspace. Assigned employees will store all project research, Figma files, and deliverables inside this cloud folder.
+              <p className="text-[11px] text-dash-textSecondary mt-1">
+                Default: Epic Craft Master Google Drive Workspace folder.
               </p>
             </div>
 
-            {/* Assignees Selector */}
+            {/* Assignee Selection */}
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label className="block text-xs font-bold text-dash-textPrimary uppercase tracking-wider">
                   Assign Team Members * ({selectedEmployees.length} selected)
                 </label>
-                <span className="text-[11px] text-gray-400">
-                  Click to select assignees
-                </span>
+                <Link
+                  href="/ceo/employees"
+                  className="text-xs font-bold text-brand-500 hover:underline flex items-center gap-1"
+                >
+                  <UserPlus className="w-3.5 h-3.5" />
+                  <span>Add Employee</span>
+                </Link>
               </div>
 
               {employees.length === 0 ? (
-                <div className="p-6 border border-dashed border-dash-border rounded-smDash bg-[#FAFAFA] text-center">
-                  <Users className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-                  <p className="text-xs font-bold text-dash-textPrimary">No team members registered yet</p>
-                  <p className="text-[11px] text-gray-400 mt-0.5 mb-3">
-                    Add your team members in the Team Directory before creating projects to assign tasks to them.
+                <div className="p-6 bg-gray-50 border border-dashed border-dash-border/80 rounded-smDash text-center space-y-2">
+                  <Users className="w-8 h-8 text-gray-400 mx-auto" />
+                  <p className="text-xs font-bold text-dash-textPrimary">
+                    No Employees in Directory Yet
                   </p>
-                  <Link href="/ceo/employees">
-                    <Button size="sm" variant="outline" type="button">
-                      Go to Team Directory
-                    </Button>
-                  </Link>
+                  <p className="text-xs text-dash-textSecondary max-w-sm mx-auto">
+                    Please add your team members before creating a project assignment.
+                  </p>
+                  <div className="pt-1">
+                    <Link href="/ceo/employees">
+                      <Button size="sm" icon={<UserPlus className="w-3.5 h-3.5" />}>
+                        Add Employee Now
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-56 overflow-y-auto p-1 border border-dash-border/60 rounded-smDash bg-[#FAFAFA]">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-60 overflow-y-auto p-1">
                   {employees.map((emp) => {
                     const isSelected = selectedEmployees.includes(emp.id);
                     const isLead = leadId === emp.id;
@@ -295,39 +470,51 @@ export default function CeoAssignProjectPage() {
                       <div
                         key={emp.id}
                         onClick={() => toggleEmployee(emp.id)}
-                        className={`p-3 rounded-md cursor-pointer border transition-all flex items-center justify-between ${
+                        className={`p-3 rounded-smDash border cursor-pointer transition-all flex items-center justify-between ${
                           isSelected
-                            ? "bg-blue-50/90 border-brand-500 shadow-sm"
-                            : "bg-white border-dash-border/60 hover:border-gray-300"
+                            ? "bg-blue-50/60 border-brand-500 shadow-xs"
+                            : "bg-[#F5F6FA] border-transparent hover:border-dash-border/80"
                         }`}
                       >
-                        <div>
-                          <div className="font-bold text-xs text-dash-textPrimary">
-                            {emp.name}
-                          </div>
-                          <div className="text-[10px] text-gray-400 font-medium">
-                            {emp.email}
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <Avatar name={emp.name} size="sm" />
+                          <div className="truncate">
+                            <div className="text-xs font-bold text-dash-textPrimary truncate">
+                              {emp.name}
+                            </div>
+                            <div className="text-[11px] text-dash-textSecondary truncate">
+                              {emp.email}
+                            </div>
                           </div>
                         </div>
 
-                        {isSelected && (
-                          <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          {isSelected && (
                             <button
                               type="button"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setLeadId(emp.id);
                               }}
-                              className={`px-1.5 py-0.5 text-[9px] font-bold rounded ${
+                              className={`px-2 py-0.5 rounded text-[10px] font-bold transition-colors ${
                                 isLead
                                   ? "bg-brand-500 text-white"
-                                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                                  : "bg-white text-dash-textSecondary hover:bg-gray-100 border border-dash-border/60"
                               }`}
                             >
-                              {isLead ? "LEAD" : "Set Lead"}
+                              {isLead ? "Lead" : "Make Lead"}
                             </button>
+                          )}
+                          <div
+                            className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                              isSelected
+                                ? "bg-brand-500 border-brand-500 text-white"
+                                : "border-gray-300 bg-white"
+                            }`}
+                          >
+                            {isSelected && <Check className="w-2.5 h-2.5 stroke-[3]" />}
                           </div>
-                        )}
+                        </div>
                       </div>
                     );
                   })}
@@ -335,14 +522,14 @@ export default function CeoAssignProjectPage() {
               )}
             </div>
 
-            {/* Google Drive Team Access Permission Helper */}
+            {/* Google Drive Sharing Helper */}
             {selectedEmployees.length > 0 && (
-              <div className="p-4 bg-blue-50/70 border border-blue-200/80 rounded-smDash animate-in fade-in">
-                <div className="flex items-center justify-between mb-2">
+              <div className="p-4 bg-blue-50/70 border border-blue-200 rounded-smDash space-y-2">
+                <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Cloud className="w-4 h-4 text-brand-500" />
-                    <span className="text-xs font-bold text-dash-textPrimary uppercase tracking-wider">
-                      Google Drive Team Access List
+                    <span className="text-xs font-bold text-brand-700">
+                      Share Google Drive Folder with Selected Team
                     </span>
                   </div>
                   <button
@@ -375,26 +562,13 @@ export default function CeoAssignProjectPage() {
               </div>
             )}
 
-            {/* Drive Provisioning Info Notice */}
-            <div className="p-4 bg-brand-50/60 rounded-smDash border border-brand-100 flex items-start gap-3">
-              <Cloud className="w-5 h-5 text-brand-500 shrink-0 mt-0.5" />
-              <div className="text-xs text-dash-textSecondary">
-                <strong className="text-brand-600 block mb-0.5">
-                  Automated Google Drive Provisioning
-                </strong>
-                Upon clicking "Assign Project", a Google Drive folder `Epic Craft /
-                Projects / {title || "<ProjectName>"}` will be created and shared
-                automatically with editor permissions for all selected employees.
-              </div>
-            </div>
-
             <Button
               type="submit"
-              disabled={loading}
+              disabled={loading || employees.length === 0}
               className="w-full py-3 font-bold text-sm shadow-md"
               icon={<FolderPlus className="w-4 h-4" />}
             >
-              {loading ? "Creating & Provisioning Drive..." : "Assign Project & Notify Team"}
+              {loading ? "Assigning Project & Milestones..." : "Assign Project & Notify Team"}
             </Button>
           </form>
         </Card>

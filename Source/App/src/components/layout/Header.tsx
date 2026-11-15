@@ -1,6 +1,7 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Search, Bell } from "lucide-react";
 import { UserSession } from "@/types";
 import { Avatar } from "@/components/ui/Avatar";
@@ -20,6 +21,19 @@ export function Header({
   onOpenNotifications,
   children,
 }: HeaderProps) {
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) return;
+    const target =
+      user.role === "CEO"
+        ? `/ceo/projects?search=${encodeURIComponent(searchQuery.trim())}`
+        : `/employee/projects?search=${encodeURIComponent(searchQuery.trim())}`;
+    router.push(target);
+  };
+
   return (
     <header className="h-16 bg-white border-b border-dash-border/60 fixed top-0 right-0 left-64 z-20 px-8 flex items-center justify-between">
       {/* Title / Breadcrumb */}
@@ -34,15 +48,17 @@ export function Header({
       {/* Right Controls */}
       <div className="flex items-center gap-5">
         {/* Search Input */}
-        <div className="relative w-64 hidden md:block">
+        <form onSubmit={handleSearchSubmit} className="relative w-64 hidden md:block">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
             aria-label="Search projects and tasks"
             placeholder="Search projects, tasks..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full bg-[#F5F6FA] text-xs text-dash-textPrimary rounded-full pl-9 pr-4 py-2 border border-dash-border/60 focus:outline-none focus:border-brand-500 transition-colors"
           />
-        </div>
+        </form>
 
         {/* Notifications */}
         <div className="relative">
