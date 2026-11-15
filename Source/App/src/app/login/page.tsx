@@ -7,7 +7,6 @@ import {
   Mail,
   ArrowRight,
   AlertCircle,
-  ShieldCheck,
   Eye,
   EyeOff,
 } from "lucide-react";
@@ -76,7 +75,7 @@ function LoginFormContent() {
   return (
     <div className="min-h-screen bg-dash-bg flex flex-col justify-center items-center px-4 py-8 select-none">
       <div className="w-full max-w-3xl">
-        {/* Main Enterprise Sign-In Card */}
+        {/* Main Clean Sign-In Card */}
         <div className="bg-white rounded-dash p-6 sm:p-8 md:p-10 shadow-dashHover border border-dash-border/60">
           {error && (
             <div className="mb-6 p-3.5 bg-red-50 border border-red-200 rounded-smDash flex items-start gap-2.5 text-xs text-status-delayed font-semibold animate-in fade-in">
@@ -90,15 +89,12 @@ function LoginFormContent() {
             {/* Left Column: Password Credentials Form */}
             <div className="flex flex-col justify-center">
               <div className="mb-5">
-                <h2 className="text-xl font-bold text-dash-textPrimary">Sign In</h2>
-                <p className="text-xs text-dash-textSecondary mt-1">
-                  Enter your credentials to access the workspace
-                </p>
+                <h2 className="text-2xl font-bold text-dash-textPrimary">Sign In</h2>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold text-dash-textPrimary mb-1.5 uppercase tracking-wider">
+                  <label className="block text-xs font-semibold text-dash-textPrimary mb-1.5">
                     Email / Username
                   </label>
                   <div className="relative">
@@ -106,7 +102,7 @@ function LoginFormContent() {
                     <input
                       type="text"
                       required
-                      placeholder="e.g. karan or user@gmail.com"
+                      placeholder="Enter email or username"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className="w-full bg-[#F5F6FA] text-sm text-dash-textPrimary rounded-smDash pl-10 pr-4 py-2.5 border border-dash-border/80 focus:outline-none focus:border-brand-500 font-medium"
@@ -115,7 +111,7 @@ function LoginFormContent() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-dash-textPrimary mb-1.5 uppercase tracking-wider">
+                  <label className="block text-xs font-semibold text-dash-textPrimary mb-1.5">
                     Password
                   </label>
                   <div className="relative">
@@ -123,7 +119,7 @@ function LoginFormContent() {
                     <input
                       type={showPassword ? "text" : "password"}
                       required
-                      placeholder="••••••••"
+                      placeholder="Enter password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       className="w-full bg-[#F5F6FA] text-sm text-dash-textPrimary rounded-smDash pl-10 pr-10 py-2.5 border border-dash-border/80 focus:outline-none focus:border-brand-500 font-medium"
@@ -161,7 +157,7 @@ function LoginFormContent() {
                   className="w-full mt-2 py-2.5 text-sm font-bold shadow-md"
                   icon={<ArrowRight className="w-4 h-4" />}
                 >
-                  {loading ? "Authenticating..." : "Sign In to Workspace"}
+                  {loading ? "Signing in..." : "Sign In"}
                 </Button>
               </form>
             </div>
@@ -185,17 +181,14 @@ function LoginFormContent() {
             {/* Right Column: Golden Logo on top of Google Sign-In */}
             <div className="md:pl-6 flex flex-col items-center justify-center text-center">
               {/* 3D Animated Circular Golden Medallion Logo */}
-              <div className="mb-2">
+              <div className="mb-3">
                 <AnimatedLogo3D size="lg" showSubtitle={false} />
               </div>
 
-              <div className="mb-5">
-                <h3 className="text-xl font-black text-dash-textPrimary tracking-tight">
+              <div className="mb-6">
+                <h3 className="text-2xl font-black text-dash-textPrimary tracking-tight">
                   Epic Craft
                 </h3>
-                <p className="text-xs text-dash-textSecondary mt-0.5 font-medium">
-                  Enterprise Project Progress Tracker
-                </p>
               </div>
 
               {/* Clean Google Sign-In Button */}
@@ -229,17 +222,6 @@ function LoginFormContent() {
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Corporate Security Notice */}
-        <div className="mt-6 text-center text-xs text-gray-400 space-y-1">
-          <div className="flex items-center justify-center gap-1.5 text-gray-400">
-            <ShieldCheck className="w-3.5 h-3.5 text-brand-500" />
-            <span>256-bit Encrypted Workspace Authentication</span>
-          </div>
-          <p className="text-[11px] text-gray-400">
-            © 2026 Epic Craft Inc. All rights reserved.
-          </p>
         </div>
       </div>
     </div>
