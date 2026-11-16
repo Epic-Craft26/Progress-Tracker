@@ -149,11 +149,13 @@ export async function DELETE(
 
     // Reassign tasks if requested, else set assignedToId = null
     if (reassignTasksToUserId && reassignTasksToUserId !== removedUserId) {
-      // Verify reassignee is valid active user
-      const targetUser = await prisma.user.findUnique({
-        where: { id: reassignTasksToUserId },
+      // Verify reassignee is an active member of this same project
+      const targetMember = await prisma.projectMember.findFirst({
+        where: { projectId, userId: reassignTasksToUserId },
+        include: { user: true },
       });
-      if (targetUser) {
+
+      if (targetMember && targetMember.user.isActive) {
         operations.push(
           prisma.task.updateMany({
             where: { projectId, assignedToId: removedUserId },
