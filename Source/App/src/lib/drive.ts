@@ -18,6 +18,15 @@ let cachedToken: { token: string; expiresAt: number } | null = null;
 
 function loadCredentials(): ServiceAccountCredentials | null {
   try {
+    if (process.env.GOOGLE_SERVICE_ACCOUNT_JSON) {
+      const data = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON);
+      if (data.client_email && data.private_key) {
+        return {
+          client_email: data.client_email,
+          private_key: data.private_key,
+        };
+      }
+    }
     if (fs.existsSync(CREDENTIALS_PATH)) {
       const data = JSON.parse(fs.readFileSync(CREDENTIALS_PATH, "utf8"));
       if (data.client_email && data.private_key) {
