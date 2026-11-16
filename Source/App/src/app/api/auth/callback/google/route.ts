@@ -6,13 +6,28 @@ import { createSessionToken, COOKIE_NAME } from "@/lib/auth";
 import { getGoogleOAuthConfig, exchangeGoogleCodeForUser } from "@/lib/google-auth";
 import { Role } from "@/types";
 
+function getOrigin(request: Request): string {
+  const forwardedHost = request.headers.get("x-forwarded-host");
+  const forwardedProto = request.headers.get("x-forwarded-proto") || "https";
+  if (forwardedHost) {
+    return `${forwardedProto}://${forwardedHost}`;
+  }
+  const host = request.headers.get("host");
+  if (host && !host.includes("localhost:10000") && !host.includes("0.0.0.0")) {
+    const proto = host.includes("localhost") ? "http" : "https";
+    return `${proto}://${host}`;
+  }
+  return process.env.NEXT_PUBLIC_APP_URL || "https://epic-craft-tracker.onrender.com";
+}
+
 export async function GET(request: Request) {
+  const origin = getOrigin(request);
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
   const errorParam = url.searchParams.get("error");
 
   const loginRedirect = (msg: string) =>
-    NextResponse.redirect(new URL(`/login?error=${encodeURIComponent(msg)}`, request.url));
+    NextResponse.redirect(new URL(`/login?error=${encodeURIComponent(msg)}`, origin));
 
   if (errorParam) {
     return loginRedirect("Google sign-in was cancelled or denied.");
@@ -24,12 +39,13 @@ export async function GET(request: Request) {
 
   try {
     const config = getGoogleOAuthConfig();
-    const host = request.headers.get("host") || "";
-    let redirectUri = config.redirectUris[0] || "http://localhost:3001/api/auth/callback/google";
-    const matched = config.redirectUris.find((uri) => host && uri.includes(host));
-    if (matched) {
-      redirectUri = matched;
-    }
+    const candidateUri = `${origin}/api/auth/callback/google`;
+    let redirectUri =
+      config.redirectUris.find(
+        (uri) => uri === candidateUri || uri.includes(new URL(origin).host)
+      ) ||
+      config.redirectUris[0] ||
+      candidateUri;
 
     const googleUser = await exchangeGoogleCodeForUser(code, redirectUri);
 
@@ -92,14 +108,14 @@ export async function GET(request: Request) {
     const cookieStore = await cookies();
     cookieStore.set(COOKIE_NAME, token, {
       httpOnly: true,
-      secure: false, // Localhost dev/prod support
+      secure: origin.startsWith("https"),
       sameSite: "lax",
       path: "/",
       maxAge: 60 * 60 * 24 * 7, // 7 days
     });
 
     const destination = user.role === "CEO" ? "/ceo" : "/employee";
-    return NextResponse.redirect(new URL(destination, request.url));
+    return NextResponse.redirect(new URL(destination, origin));
   } catch (err: any) {
     console.error("Google OAuth callback error:", err);
     return loginRedirect(`Google login error: ${err.message || "Authentication failed"}`);
