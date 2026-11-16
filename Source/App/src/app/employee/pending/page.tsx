@@ -196,7 +196,7 @@ export default function EmployeePendingUpdatesPage() {
                   {isRevision && latestApproval?.feedback && (
                     <div className="mb-3 p-2.5 rounded-smDash bg-amber-50 border border-amber-200 text-xs text-amber-900">
                       <strong className="block font-bold text-[11px] uppercase tracking-wider text-amber-700">
-                        CEO Revision Request:
+                        Revision Request:
                       </strong>
                       <span className="mt-0.5 block">{latestApproval.feedback}</span>
                     </div>
@@ -369,7 +369,7 @@ export default function EmployeePendingUpdatesPage() {
             <textarea
               required
               rows={3}
-              placeholder="What tasks were finished? Any blockers or notes for CEO review..."
+              placeholder="What tasks were finished? Any blockers or notes for review..."
               value={note}
               onChange={(e) => setNote(e.target.value)}
               className="w-full bg-[#F5F6FA] text-sm text-dash-textPrimary rounded-smDash p-3 border border-dash-border/80 focus:outline-none focus:border-brand-500 font-medium"
@@ -392,10 +392,10 @@ export default function EmployeePendingUpdatesPage() {
           <div className="p-3 bg-gray-50 rounded-smDash border border-dash-border/60 flex items-center justify-between">
             <div>
               <span className="text-xs font-bold text-dash-textPrimary block">
-                Submit for CEO Review & Approval
+                Submit for Review & Approval
               </span>
               <span className="text-[11px] text-dash-textSecondary">
-                Places project in the CEO sign-off queue
+                Places project in the sign-off queue
               </span>
             </div>
             <input

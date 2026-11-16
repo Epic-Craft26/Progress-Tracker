@@ -53,7 +53,7 @@ export default function EmployeeHistoryPage() {
               No completed projects yet
             </h3>
             <p className="text-xs text-gray-400 mt-1 max-w-sm mx-auto">
-              Once you finish your active assignments and the CEO approves them,
+              Once you finish your active assignments and they are approved,
               they will be archived in your performance stats here.
             </p>
           </Card>
@@ -98,7 +98,7 @@ export default function EmployeeHistoryPage() {
                   <div className="mt-2 p-3 bg-emerald-50/70 border border-emerald-200/60 rounded-md">
                     <div className="flex items-center gap-1.5 text-xs font-bold text-status-completed mb-1">
                       <Award className="w-3.5 h-3.5" />
-                      <span>CEO Approval Note:</span>
+                      <span>Approval Note:</span>
                     </div>
                     <p className="text-xs text-gray-700 italic">
                       "{approval.feedback}"

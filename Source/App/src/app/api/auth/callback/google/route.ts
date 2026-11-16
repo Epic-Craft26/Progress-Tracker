@@ -85,13 +85,13 @@ export async function GET(request: Request) {
 
     if (!user) {
       return loginRedirect(
-        `Access denied: Google account "${googleUser.email}" is not registered in Epic Craft. Please ask CEO Karan to add your email to the Team Directory.`
+        `Access denied: Google account "${googleUser.email}" is not registered in Epic Craft. Please ask Karan Raj to add your email to the Team Directory.`
       );
     }
 
     if (!user.isActive) {
       return loginRedirect(
-        `Account deactivated: Your profile (${user.name}) is currently inactive. Please contact CEO Karan.`
+        `Account deactivated: Your profile (${user.name}) is currently inactive. Please contact Karan Raj.`
       );
     }
 

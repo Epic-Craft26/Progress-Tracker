@@ -130,7 +130,7 @@ export default function EmployeeDashboardPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to post update");
 
-      setUpdateSuccess("Progress logged and CEO dashboard refreshed!");
+      setUpdateSuccess("Progress logged and dashboard refreshed!");
       setTimeout(() => {
         setActiveProject(null);
         loadDashboard();
@@ -209,7 +209,7 @@ export default function EmployeeDashboardPage() {
             No active projects right now
           </h3>
           <p className="text-xs text-gray-400 mt-1 max-w-sm mx-auto">
-            You're currently all caught up! New assignments from CEO Karan will appear
+            You're currently all caught up! New assignments from Karan Raj will appear
             here immediately.
           </p>
         </Card>
@@ -243,7 +243,7 @@ export default function EmployeeDashboardPage() {
                   {isRevision && latestApproval?.feedback && (
                     <div className="mb-3 p-2.5 rounded-smDash bg-amber-50 border border-amber-200 text-xs text-amber-900">
                       <strong className="block font-bold text-[11px] uppercase tracking-wider text-amber-700">
-                        CEO Revision Request:
+                        Revision Request:
                       </strong>
                       <span className="mt-0.5 block">{latestApproval.feedback}</span>
                     </div>
@@ -431,7 +431,7 @@ export default function EmployeeDashboardPage() {
             <textarea
               required
               rows={3}
-              placeholder="What tasks or 3D models were finished? Any research findings or notes for CEO review..."
+              placeholder="What tasks or 3D models were finished? Any research findings or notes for review..."
               value={note}
               onChange={(e) => setNote(e.target.value)}
               className="w-full bg-[#F5F6FA] text-sm text-dash-textPrimary rounded-smDash p-3 border border-dash-border/80 focus:outline-none focus:border-brand-500 font-medium"
@@ -458,14 +458,14 @@ export default function EmployeeDashboardPage() {
             </p>
           </div>
 
-          {/* Ready for CEO Sign-Off Toggle */}
+          {/* Ready for Sign-Off Toggle */}
           <div className="p-3 bg-gray-50 rounded-smDash border border-dash-border/60 flex items-center justify-between">
             <div>
               <span className="text-xs font-bold text-dash-textPrimary block">
-                Submit for CEO Review & Approval
+                Submit for Review & Approval
               </span>
               <span className="text-[11px] text-dash-textSecondary">
-                Places project in the CEO sign-off queue for final verification
+                Places project in the sign-off queue for final verification
               </span>
             </div>
             <input
