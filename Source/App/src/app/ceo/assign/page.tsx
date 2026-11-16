@@ -174,14 +174,14 @@ export default function CeoAssignProjectPage() {
   }
 
   return (
-    <AppLayout user={user} title="Create & Assign Project">
+    <AppLayout user={user} title="New Project">
       <div className="max-w-3xl mx-auto">
         <div className="mb-6 flex items-center justify-between">
           <Link
             href="/ceo/projects"
             className="inline-flex items-center gap-1.5 text-xs font-bold text-dash-textSecondary hover:text-brand-500 transition-colors"
           >
-            <ArrowLeft className="w-4 h-4" /> Back to All Projects
+            <ArrowLeft className="w-4 h-4" /> Back to Projects
           </Link>
         </div>
 
@@ -192,11 +192,8 @@ export default function CeoAssignProjectPage() {
             </div>
             <div>
               <h1 className="text-xl font-black text-dash-textPrimary tracking-tight">
-                New Project Assignment
+                New Project
               </h1>
-              <p className="text-xs text-dash-textSecondary mt-0.5">
-                Provision deliverables, set milestones, and connect team Google Drive workspace
-              </p>
             </div>
           </div>
 
@@ -211,7 +208,7 @@ export default function CeoAssignProjectPage() {
             <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-smDash flex items-start gap-2.5 text-xs text-status-completed font-semibold">
               <CheckCircle className="w-4 h-4 shrink-0 mt-0.5" />
               <span>
-                Project created successfully! Milestones assigned and notifications sent. Redirecting...
+                Project created successfully. Redirecting...
               </span>
             </div>
           )}
@@ -315,11 +312,8 @@ export default function CeoAssignProjectPage() {
                 <div>
                   <h3 className="text-xs font-bold text-dash-textPrimary uppercase tracking-wider flex items-center gap-1.5">
                     <ListPlus className="w-4 h-4 text-brand-500" />
-                    Project Milestones & Deliverables ({tasks.length})
+                    Project Milestones ({tasks.length})
                   </h3>
-                  <p className="text-[11px] text-dash-textSecondary">
-                    Employees check off milestones to automatically drive project progress
-                  </p>
                 </div>
               </div>
 
@@ -402,7 +396,7 @@ export default function CeoAssignProjectPage() {
               <div className="flex items-center justify-between mb-1.5">
                 <label className="block text-xs font-bold text-dash-textPrimary uppercase tracking-wider flex items-center gap-1.5">
                   <Cloud className="w-3.5 h-3.5 text-brand-500" />
-                  <span>Google Drive Project Workspace URL</span>
+                  <span>Google Drive Folder URL</span>
                 </label>
                 <a
                   href={customDriveUrl || DEFAULT_MASTER_DRIVE}
@@ -410,7 +404,7 @@ export default function CeoAssignProjectPage() {
                   rel="noopener noreferrer"
                   className="text-[11px] font-bold text-brand-600 hover:text-brand-800 flex items-center gap-1"
                 >
-                  <span>Open Drive Folder</span>
+                  <span>Open Folder</span>
                   <ExternalLink className="w-3 h-3" />
                 </a>
               </div>
@@ -424,9 +418,6 @@ export default function CeoAssignProjectPage() {
                   className="w-full bg-[#F5F6FA] text-xs font-mono text-dash-textPrimary rounded-smDash px-4 py-2.5 border border-dash-border/80 focus:outline-none focus:border-brand-500"
                 />
               </div>
-              <p className="text-[11px] text-dash-textSecondary mt-1">
-                Default: Epic Craft Master Google Drive Workspace folder.
-              </p>
             </div>
 
             {/* Assignee Selection */}

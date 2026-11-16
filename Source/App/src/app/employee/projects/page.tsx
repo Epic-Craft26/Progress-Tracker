@@ -48,14 +48,16 @@ function EmployeeProjectsContent() {
   if (!user) return null;
 
   return (
-    <AppLayout user={user} title="My Assigned Projects">
+    <AppLayout user={user} title="Projects">
       <div className="mb-6">
         <h1 className="text-2xl font-black text-dash-textPrimary tracking-tight">
-          Assigned Projects
+          My Projects
         </h1>
-        <p className="text-xs text-dash-textSecondary mt-0.5">
-          {search ? `Showing search results for "${search}"` : "All projects where you are assigned as a contributor or lead"}
-        </p>
+        {search && (
+          <p className="text-xs text-dash-textSecondary mt-0.5">
+            Showing search results for &ldquo;{search}&rdquo;
+          </p>
+        )}
       </div>
 
       <Card>

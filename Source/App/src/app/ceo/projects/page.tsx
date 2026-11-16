@@ -246,21 +246,18 @@ export default function CeoProjectsPage() {
   }
 
   return (
-    <AppLayout user={user} title="All Company Projects">
+    <AppLayout user={user} title="Projects">
       {/* Top Header Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-black text-dash-textPrimary tracking-tight">
-            Projects Central Hub
+            Projects
           </h1>
-          <p className="text-xs text-dash-textSecondary mt-0.5">
-            Monitor real-time progress, deadlines, milestones, and Google Drive assets
-          </p>
         </div>
         <div className="flex items-center gap-3">
           <Link href="/ceo/assign">
             <Button icon={<PlusCircle className="w-4 h-4" />}>
-              Create & Assign Project
+              Create Project
             </Button>
           </Link>
         </div>
@@ -527,27 +524,24 @@ export default function CeoProjectsPage() {
             {/* Scope / Summary */}
             <div>
               <h4 className="text-xs font-bold text-dash-textPrimary uppercase tracking-wider mb-1">
-                Project Scope & Deliverables
+                Scope
               </h4>
               <p className="text-xs text-dash-textSecondary leading-relaxed bg-[#F8F9FC] p-3 rounded-smDash border border-dash-border/60">
                 {selectedProject.summary}
               </p>
             </div>
 
-            {/* Google Drive Cloud Workspace Hub */}
+            {/* Google Drive Workspace */}
             <div className="p-4 rounded-xl bg-blue-50/60 border border-blue-100 space-y-3">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 rounded-lg bg-blue-500 text-white flex items-center justify-center shadow-xs">
                     <Cloud className="w-4 h-4" />
                   </div>
                   <div>
                     <h4 className="text-xs font-bold text-dash-textPrimary">
-                      Google Drive Project Workspace
+                      Google Drive Folder
                     </h4>
-                    <p className="text-[11px] text-dash-textSecondary">
-                      Deliverables, research assets, 3D files, and design cloud documents
-                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">

@@ -158,7 +158,7 @@ export default function EmployeeDashboardPage() {
   );
 
   return (
-    <AppLayout user={user} title="My Progress & Assignments">
+    <AppLayout user={user} title="Dashboard">
       {/* KPI Cards Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <MetricCard
@@ -171,14 +171,12 @@ export default function EmployeeDashboardPage() {
         <MetricCard
           title="Under Review"
           value={stats?.inReview || 0}
-          subtitle="Waiting for CEO sign-off"
           icon={<Clock className="w-6 h-6 text-status-pending" />}
           iconBgColor="bg-amber-50"
         />
         <MetricCard
           title="Completed"
           value={stats?.completed || 0}
-          subtitle="Successfully archived"
           icon={<CheckCircle2 className="w-6 h-6 text-status-completed" />}
           iconBgColor="bg-emerald-50"
         />
@@ -195,11 +193,8 @@ export default function EmployeeDashboardPage() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h2 className="text-xl font-bold text-dash-textPrimary">
-            My Assigned Projects
+            My Projects
           </h2>
-          <p className="text-xs text-dash-textSecondary mt-0.5">
-            Check off milestones, log progress updates, and sync files to your Google Drive workspace
-          </p>
         </div>
       </div>
 

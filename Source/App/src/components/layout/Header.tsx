@@ -39,10 +39,6 @@ export function Header({
       {/* Title / Breadcrumb */}
       <div className="flex items-center gap-3">
         <h2 className="text-xl font-bold text-dash-textPrimary">{title}</h2>
-        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-status-completed border border-emerald-200">
-          <span className="w-1.5 h-1.5 rounded-full bg-status-completed animate-pulse" />
-          Live Connected
-        </span>
       </div>
 
       {/* Right Controls */}

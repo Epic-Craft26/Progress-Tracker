@@ -232,17 +232,12 @@ export function LiveTeamManager({
   return (
     <div className="bg-white rounded-dash border border-dash-border/80 p-5 shadow-xs">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-dash-border/60">
-        <div>
-          <div className="flex items-center gap-2">
-            <Users className="w-5 h-5 text-brand-500" />
-            <h3 className="text-sm font-bold text-dash-textPrimary">
-              Live Team Assignment ({members.length})
-            </h3>
-          </div>
-          <p className="text-xs text-dash-textSecondary mt-0.5">
-            Add or remove employees while the project is active. Changes sync to Google Drive and employee dashboards instantly.
-          </p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-dash-border/60">
+        <div className="flex items-center gap-2">
+          <Users className="w-4 h-4 text-brand-500" />
+          <h3 className="text-sm font-bold text-dash-textPrimary">
+            Team Members ({members.length})
+          </h3>
         </div>
 
         <div className="flex items-center gap-2">
@@ -253,7 +248,7 @@ export function LiveTeamManager({
               icon={<UserPlus className="w-3.5 h-3.5" />}
               disabled={availableEmployees.length === 0}
             >
-              Add Employee
+              Add Member
             </Button>
           )}
         </div>
@@ -328,15 +323,6 @@ export function LiveTeamManager({
               </select>
             </div>
           </div>
-
-          {driveFolderId && (
-            <div className="flex items-center gap-2 text-[11px] text-gray-500 bg-amber-50/60 p-2 rounded border border-amber-200/60">
-              <HardDrive className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-              <span>
-                Employee's Google email will automatically be granted Editor access to the project's Google Drive folder.
-              </span>
-            </div>
-          )}
 
           <div className="flex justify-end gap-2 pt-1">
             <Button
@@ -470,10 +456,7 @@ export function LiveTeamManager({
               <AlertTriangle className="w-4 h-4 text-status-delayed shrink-0 mt-0.5" />
               <div>
                 <p className="font-semibold">
-                  You are removing {memberToRemove.user.name} ({memberToRemove.user.email}) from {projectTitle}.
-                </p>
-                <p className="text-[11px] text-red-700 mt-1">
-                  They will lose access to this project workspace, and their Google Drive folder permissions will be revoked.
+                  Remove {memberToRemove.user.name} ({memberToRemove.user.email}) from {projectTitle}?
                 </p>
               </div>
             </div>
@@ -489,11 +472,8 @@ export function LiveTeamManager({
             {memberToRemove.pendingTasks > 0 ? (
               <div className="space-y-2.5">
                 <label className="block text-xs font-bold text-dash-textPrimary">
-                  Milestone Reassignment ({memberToRemove.pendingTasks} pending tasks):
+                  Reassign Active Milestones ({memberToRemove.pendingTasks} tasks):
                 </label>
-                <p className="text-[11px] text-dash-textSecondary">
-                  This employee has {memberToRemove.pendingTasks} active milestone tasks. Where would you like to assign them?
-                </p>
 
                 <div className="space-y-2 pt-1">
                   {currentLead && currentLead.userId !== memberToRemove.userId && (
@@ -505,14 +485,9 @@ export function LiveTeamManager({
                         onChange={() => setReassignOption("LEAD")}
                         className="accent-brand-500"
                       />
-                      <div className="flex-1">
-                        <span className="font-semibold text-dash-textPrimary">
-                          Reassign to Project Lead ({currentLead.user.name})
-                        </span>
-                        <span className="block text-[10px] text-gray-500">
-                          Recommended: Assigns all pending tasks to the project lead.
-                        </span>
-                      </div>
+                      <span className="font-semibold text-dash-textPrimary">
+                        Project Lead ({currentLead.user.name})
+                      </span>
                     </label>
                   )}
 
@@ -535,7 +510,7 @@ export function LiveTeamManager({
                       />
                       <div className="flex-1">
                         <span className="font-semibold text-dash-textPrimary">
-                          Reassign to another team member
+                          Another Team Member
                         </span>
                         {reassignOption === "COLLEAGUE" && (
                           <select
@@ -568,14 +543,9 @@ export function LiveTeamManager({
                       onChange={() => setReassignOption("BACKLOG")}
                       className="accent-brand-500"
                     />
-                    <div className="flex-1">
-                      <span className="font-semibold text-dash-textPrimary">
-                        Move to Unassigned Backlog
-                      </span>
-                      <span className="block text-[10px] text-gray-500">
-                        Tasks remain in the project milestone checklist without an assignee.
-                      </span>
-                    </div>
+                    <span className="font-semibold text-dash-textPrimary">
+                      Unassigned Backlog
+                    </span>
                   </label>
                 </div>
               </div>

@@ -199,15 +199,12 @@ export default function CeoEmployeesPage() {
   }
 
   return (
-    <AppLayout user={user} title="Team & Employee Management">
+    <AppLayout user={user} title="Team Directory">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-black text-dash-textPrimary tracking-tight">
-            Team & Employee Management
+            Team Directory
           </h1>
-          <p className="text-xs text-dash-textSecondary mt-0.5">
-            Manage employee access, reset passwords, and provision Google Drive accounts
-          </p>
         </div>
 
         <Button
@@ -218,7 +215,7 @@ export default function CeoEmployeesPage() {
           }}
           icon={<UserPlus className="w-4 h-4" />}
         >
-          Add New Employee
+          Add Employee
         </Button>
       </div>
 

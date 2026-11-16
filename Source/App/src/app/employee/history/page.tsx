@@ -34,14 +34,11 @@ export default function EmployeeHistoryPage() {
   if (!user) return null;
 
   return (
-    <AppLayout user={user} title="Completed Project History">
+    <AppLayout user={user} title="History">
       <div className="mb-6">
         <h1 className="text-2xl font-black text-dash-textPrimary tracking-tight">
-          Completed & Approved History
+          History
         </h1>
-        <p className="text-xs text-dash-textSecondary mt-0.5">
-          Archived projects with CEO sign-off feedback and delivery records
-        </p>
       </div>
 
       <div className="space-y-4">

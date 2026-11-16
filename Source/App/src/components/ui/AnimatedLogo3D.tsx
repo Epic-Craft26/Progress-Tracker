@@ -119,9 +119,6 @@ export function AnimatedLogo3D({
           <h1 className="text-2xl font-black text-dash-textPrimary tracking-tight">
             Epic Craft
           </h1>
-          <p className="text-xs font-semibold text-dash-textSecondary mt-1">
-            Enterprise Project Progress & Workspace Tracker
-          </p>
         </div>
       )}
     </div>

@@ -33,20 +33,20 @@ export default async function CeoDashboardPage() {
     await getCeoDashboardStats();
 
   return (
-    <AppLayout user={session} title="CEO Executive Command Center">
+    <AppLayout user={session} title="Dashboard">
       {/* KPI Cards Row (DashStack Style) */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <MetricCard
           title="Active Projects"
           value={kpis.inProgress}
-          subtitle={kpis.inProgress === 0 ? "No active projects" : `${kpis.inProgress} currently ongoing`}
+          subtitle={kpis.inProgress === 0 ? "No active projects" : `${kpis.inProgress} ongoing`}
           icon={<Briefcase className="w-6 h-6 text-brand-500" />}
           iconBgColor="bg-blue-50"
         />
         <MetricCard
           title="Pending Approvals"
           value={kpis.pendingReview}
-          subtitle={kpis.pendingReview === 0 ? "No pending sign-offs" : `${kpis.pendingReview} awaiting CEO review`}
+          subtitle={kpis.pendingReview === 0 ? "No pending sign-offs" : `${kpis.pendingReview} awaiting review`}
           icon={<Clock className="w-6 h-6 text-status-pending" />}
           iconBgColor="bg-amber-50"
         />
@@ -74,11 +74,8 @@ export default async function CeoDashboardPage() {
             <div className="flex items-center justify-between pb-4 mb-4 border-b border-dash-border/40">
               <div>
                 <h3 className="text-lg font-bold text-dash-textPrimary">
-                  Active Projects Progress
+                  Active Projects
                 </h3>
-                <p className="text-xs text-dash-textSecondary mt-0.5">
-                  Live updates & automated Google Drive synchronization
-                </p>
               </div>
               <div className="flex items-center gap-2">
                 <Link href="/ceo/assign">
@@ -184,10 +181,7 @@ export default async function CeoDashboardPage() {
         {/* Right Column: Live Activity Feed */}
         <div className="space-y-6">
           <Card>
-            <CardHeader
-              title="Live Activity Stream"
-              subtitle="Real-time employee submissions & milestones"
-            />
+            <CardHeader title="Activity Stream" />
             <div className="space-y-4">
               {recentUpdates.length === 0 ? (
                 <p className="text-xs text-gray-400 text-center py-6">

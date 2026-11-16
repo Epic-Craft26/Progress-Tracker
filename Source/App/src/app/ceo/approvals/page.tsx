@@ -92,14 +92,11 @@ export default function CeoApprovalsPage() {
   }
 
   return (
-    <AppLayout user={user} title="CEO Review & Approval Queue">
+    <AppLayout user={user} title="Approvals">
       <div className="mb-6">
         <h1 className="text-2xl font-black text-dash-textPrimary tracking-tight">
-          Review & Sign-Off Queue
+          Approvals
         </h1>
-        <p className="text-xs text-dash-textSecondary mt-0.5">
-          Projects submitted by employees as 100% complete awaiting your final approval
-        </p>
       </div>
 
       <Card>

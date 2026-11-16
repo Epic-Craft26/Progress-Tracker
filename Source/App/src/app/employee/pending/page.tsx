@@ -147,14 +147,11 @@ export default function EmployeePendingUpdatesPage() {
   );
 
   return (
-    <AppLayout user={user} title="Pending Project Updates">
+    <AppLayout user={user} title="Pending Updates">
       <div className="mb-6">
         <h1 className="text-2xl font-black text-dash-textPrimary tracking-tight">
-          Pending Work & Updates
+          Pending Updates
         </h1>
-        <p className="text-xs text-dash-textSecondary mt-0.5">
-          Projects requiring milestone progress, research uploads, or revision response
-        </p>
       </div>
 
       {loading ? (
