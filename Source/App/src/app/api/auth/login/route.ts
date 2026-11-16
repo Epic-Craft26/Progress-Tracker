@@ -85,6 +85,7 @@ export async function POST(request: Request) {
       name: user.name,
       email: user.email,
       role: user.role as "CEO" | "EMPLOYEE",
+      designation: user.designation || undefined,
       mustChangePassword: user.mustChangePassword,
     };
 

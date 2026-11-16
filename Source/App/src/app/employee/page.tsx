@@ -145,7 +145,7 @@ export default function EmployeeDashboardPage() {
   if (!user) {
     return (
       <div className="min-h-screen bg-dash-bg flex items-center justify-center">
-        <div className="text-xs font-bold text-gray-400">Loading Employee Workspace...</div>
+        <div className="text-xs font-bold text-gray-400">Loading Workspace...</div>
       </div>
     );
   }

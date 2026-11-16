@@ -57,7 +57,7 @@ export function Sidebar({ role, onLogout }: SidebarProps) {
             Epic Craft
           </h1>
           <span className="text-[11px] font-semibold text-brand-500 uppercase tracking-wider">
-            {role} Portal
+            {role === "CEO" ? "Executive Portal" : "Workspace"}
           </span>
         </div>
       </div>

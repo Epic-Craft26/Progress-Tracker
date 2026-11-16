@@ -101,6 +101,7 @@ export async function GET(request: Request) {
       name: user.name,
       email: user.email,
       role: user.role as Role,
+      designation: user.designation || undefined,
       mustChangePassword: false, // Authenticated via Google
     });
 

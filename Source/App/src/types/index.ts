@@ -14,6 +14,7 @@ export interface UserSession {
   name: string;
   email: string;
   role: Role;
+  designation?: string;
   mustChangePassword: boolean;
 }
 
