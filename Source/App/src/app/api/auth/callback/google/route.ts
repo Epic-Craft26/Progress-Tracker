@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { createSessionToken, COOKIE_NAME } from "@/lib/auth";
 import { getGoogleOAuthConfig, exchangeGoogleCodeForUser } from "@/lib/google-auth";
