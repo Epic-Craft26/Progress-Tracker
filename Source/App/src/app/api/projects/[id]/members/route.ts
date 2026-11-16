@@ -47,6 +47,14 @@ export async function GET(
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
+    // Authorization check: Employees can only view team roster of projects they belong to
+    if (session.role === "EMPLOYEE") {
+      const isMember = project.members.some((m) => m.userId === session.id);
+      if (!isMember) {
+        return NextResponse.json({ error: "Access denied" }, { status: 403 });
+      }
+    }
+
     // Map members with their active task counts
     const membersWithStats = project.members.map((m) => {
       const assignedTasks = project.tasks.filter((t) => t.assignedToId === m.userId);
@@ -173,7 +181,7 @@ export async function POST(
             memberRole === "LEAD" ? "Project Lead" : "Contributor"
           }.`,
           type: "ASSIGNED",
-          link: "/employee",
+          link: "/employee/projects",
         },
       })
     );
@@ -195,9 +203,14 @@ export async function POST(
     const txResults = await prisma.$transaction(operations);
     const newMember = txResults[memberRole === "LEAD" ? 1 : 0];
 
-    // Grant Google Drive folder permission if folder exists and employee has email
-    if (project.driveFolderId && employee.email) {
-      grantDriveFolderAccess(project.driveFolderId, employee.email, "writer").catch(
+    // Grant Google Drive folder permission only if a dedicated project folder exists (never grant on master folder)
+    const isDedicatedFolder =
+      project.driveFolderId &&
+      project.driveFolderId !== "1BisxzQ0xkseowtbaTe5FNhtTCRE8JFJf" &&
+      project.driveFolderId !== process.env.GOOGLE_DRIVE_MASTER_FOLDER_ID;
+
+    if (isDedicatedFolder && employee.email) {
+      grantDriveFolderAccess(project.driveFolderId!, employee.email, "writer").catch(
         (e) => console.warn("Google Drive permission background grant failed:", e)
       );
     }

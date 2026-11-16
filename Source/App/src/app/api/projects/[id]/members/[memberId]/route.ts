@@ -140,14 +140,14 @@ export async function DELETE(
     const removedUserId = member.userId;
     const project = member.project;
 
-    // Check count of tasks assigned to this employee in this project
-    const memberTasks = await prisma.task.findMany({
-      where: { projectId, assignedToId: removedUserId },
+    // Check count of pending tasks assigned to this employee (completed tasks remain attributed to them)
+    const pendingTasks = await prisma.task.findMany({
+      where: { projectId, assignedToId: removedUserId, isCompleted: false },
     });
 
     const operations: any[] = [];
 
-    // Reassign tasks if requested, else set assignedToId = null
+    // Reassign only pending tasks; completed tasks preserve historical attribution
     if (reassignTasksToUserId && reassignTasksToUserId !== removedUserId) {
       // Verify reassignee is an active member of this same project
       const targetMember = await prisma.projectMember.findFirst({
@@ -158,14 +158,14 @@ export async function DELETE(
       if (targetMember && targetMember.user.isActive) {
         operations.push(
           prisma.task.updateMany({
-            where: { projectId, assignedToId: removedUserId },
+            where: { projectId, assignedToId: removedUserId, isCompleted: false },
             data: { assignedToId: reassignTasksToUserId },
           })
         );
       } else {
         operations.push(
           prisma.task.updateMany({
-            where: { projectId, assignedToId: removedUserId },
+            where: { projectId, assignedToId: removedUserId, isCompleted: false },
             data: { assignedToId: null },
           })
         );
@@ -173,7 +173,7 @@ export async function DELETE(
     } else {
       operations.push(
         prisma.task.updateMany({
-          where: { projectId, assignedToId: removedUserId },
+          where: { projectId, assignedToId: removedUserId, isCompleted: false },
           data: { assignedToId: null },
         })
       );
@@ -201,10 +201,10 @@ export async function DELETE(
 
     // Audit log
     const reassignText =
-      reassignTasksToUserId && memberTasks.length > 0
-        ? ` (${memberTasks.length} tasks reassigned)`
-        : memberTasks.length > 0
-        ? ` (${memberTasks.length} tasks moved to unassigned backlog)`
+      reassignTasksToUserId && pendingTasks.length > 0
+        ? ` (${pendingTasks.length} pending tasks reassigned)`
+        : pendingTasks.length > 0
+        ? ` (${pendingTasks.length} pending tasks moved to unassigned backlog)`
         : "";
 
     operations.push(
@@ -220,9 +220,14 @@ export async function DELETE(
 
     await prisma.$transaction(operations);
 
-    // Revoke Drive folder permission asynchronously if project has folder
-    if (project.driveFolderId && member.user.email) {
-      revokeDriveFolderAccess(project.driveFolderId, member.user.email).catch((e) =>
+    // Revoke Drive folder permission asynchronously if project has a dedicated folder (not master)
+    const isDedicatedFolder =
+      project.driveFolderId &&
+      project.driveFolderId !== "1BisxzQ0xkseowtbaTe5FNhtTCRE8JFJf" &&
+      project.driveFolderId !== process.env.GOOGLE_DRIVE_MASTER_FOLDER_ID;
+
+    if (isDedicatedFolder && member.user.email) {
+      revokeDriveFolderAccess(project.driveFolderId!, member.user.email).catch((e) =>
         console.warn("Google Drive permission revocation failed:", e)
       );
     }
@@ -230,7 +235,7 @@ export async function DELETE(
     return NextResponse.json({
       success: true,
       message: `${member.user.name} removed from ${project.title}`,
-      reassignedTasksCount: memberTasks.length,
+      reassignedTasksCount: pendingTasks.length,
     });
   } catch (err: any) {
     console.error("Failed to remove project member:", err);

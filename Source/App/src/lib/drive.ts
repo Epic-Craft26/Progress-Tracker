@@ -180,7 +180,7 @@ export async function grantDriveFolderAccess(
   if (!token) return false;
 
   try {
-    const res = await fetch(`https://www.googleapis.com/drive/v3/files/${folderId}/permissions?sendNotificationEmail=false`, {
+    const res = await fetch(`https://www.googleapis.com/drive/v3/files/${folderId}/permissions?supportsAllDrives=true&sendNotificationEmail=false`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -214,9 +214,9 @@ export async function revokeDriveFolderAccess(
   if (!token) return false;
 
   try {
-    // 1. List existing permissions to find permissionId matching email
+    // 1. List existing permissions to find permissionId matching email (supporting Shared Drives)
     const listRes = await fetch(
-      `https://www.googleapis.com/drive/v3/files/${folderId}/permissions?fields=permissions(id,emailAddress,role)`,
+      `https://www.googleapis.com/drive/v3/files/${folderId}/permissions?supportsAllDrives=true&fields=permissions(id,emailAddress,role)`,
       {
         headers: { Authorization: `Bearer ${token}` },
       }
@@ -231,9 +231,9 @@ export async function revokeDriveFolderAccess(
 
     if (!targetPerm) return true; // Already not present
 
-    // 2. Delete the permission
+    // 2. Delete the permission (supporting Shared Drives)
     const delRes = await fetch(
-      `https://www.googleapis.com/drive/v3/files/${folderId}/permissions/${targetPerm.id}`,
+      `https://www.googleapis.com/drive/v3/files/${folderId}/permissions/${targetPerm.id}?supportsAllDrives=true`,
       {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },

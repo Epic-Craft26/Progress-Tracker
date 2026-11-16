@@ -478,6 +478,13 @@ export function LiveTeamManager({
               </div>
             </div>
 
+            {error && (
+              <div className="p-2.5 bg-red-100 border border-red-300 rounded text-xs text-status-delayed font-semibold flex items-center gap-2">
+                <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
+
             {/* Task Reassignment Handling */}
             {memberToRemove.pendingTasks > 0 ? (
               <div className="space-y-2.5">
@@ -515,7 +522,15 @@ export function LiveTeamManager({
                         type="radio"
                         name="reassignOption"
                         checked={reassignOption === "COLLEAGUE"}
-                        onChange={() => setReassignOption("COLLEAGUE")}
+                        onChange={() => {
+                          setReassignOption("COLLEAGUE");
+                          const firstColleague = members.find(
+                            (m) => m.userId !== memberToRemove.userId && m.userId !== currentLead?.userId
+                          );
+                          if (firstColleague) {
+                            setReassignTargetId(firstColleague.userId);
+                          }
+                        }}
                         className="accent-brand-500"
                       />
                       <div className="flex-1">
@@ -524,7 +539,11 @@ export function LiveTeamManager({
                         </span>
                         {reassignOption === "COLLEAGUE" && (
                           <select
-                            value={reassignTargetId}
+                            value={
+                              reassignTargetId ||
+                              members.find((m) => m.userId !== memberToRemove.userId && m.userId !== currentLead?.userId)?.userId ||
+                              ""
+                            }
                             onChange={(e) => setReassignTargetId(e.target.value)}
                             className="mt-1.5 w-full bg-white text-xs text-dash-textPrimary rounded-smDash px-2.5 py-1.5 border border-dash-border/80"
                           >
