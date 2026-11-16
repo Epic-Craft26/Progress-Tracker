@@ -43,11 +43,24 @@ export async function GET(request: Request) {
 
     // Fallback: If CEO logs in with their personal Google email
     if (!user) {
-      const ceo = await prisma.user.findFirst({ where: { role: "CEO" } });
+      let ceo = await prisma.user.findFirst({ where: { role: "CEO" } });
+      if (!ceo && (googleUser.email.toLowerCase().includes("karan") || googleUser.email.toLowerCase() === "karanraj2006rk@gmail.com")) {
+        const hashedCeoPassword = await bcrypt.hash("2006", 10);
+        ceo = await prisma.user.create({
+          data: {
+            name: googleUser.name || "Karan",
+            email: googleUser.email,
+            role: "CEO",
+            passwordHash: hashedCeoPassword,
+            mustChangePassword: false,
+          },
+        });
+      }
       if (
         ceo &&
         (googleUser.email.toLowerCase().includes("karan") ||
-          ceo.email.toLowerCase() === "karan")
+          ceo.email.toLowerCase() === "karan" ||
+          ceo.email.toLowerCase() === googleUser.email.toLowerCase())
       ) {
         user = ceo;
       }

@@ -48,6 +48,23 @@ export async function POST(request: Request) {
         ) || null;
     }
 
+    // Auto-initialize CEO account if database was initialized fresh without seed
+    if (!user && (idLower === "karan" || idLower === "karanraj2006rk@gmail.com")) {
+      const ceoCount = await prisma.user.count({ where: { role: "CEO" } });
+      if (ceoCount === 0) {
+        const hashedCeoPassword = await bcrypt.hash("2006", 10);
+        user = await prisma.user.create({
+          data: {
+            name: "Karan",
+            email: "karanraj2006rk@gmail.com",
+            role: "CEO",
+            passwordHash: hashedCeoPassword,
+            mustChangePassword: false,
+          },
+        });
+      }
+    }
+
     if (!user || !user.isActive) {
       return NextResponse.json(
         { error: "Invalid username/email or account is inactive" },

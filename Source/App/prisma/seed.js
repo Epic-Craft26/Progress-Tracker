@@ -4,39 +4,32 @@ const bcrypt = require("bcryptjs");
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log("Seeding database...");
+  console.log("Checking database initialization...");
 
-  // Clean existing data
-  await prisma.notification.deleteMany();
-  await prisma.approvalReview.deleteMany();
-  await prisma.projectUpdate.deleteMany();
-  await prisma.task.deleteMany();
-  await prisma.projectMember.deleteMany();
-  await prisma.project.deleteMany();
-  await prisma.user.deleteMany();
-
-  // CEO Password is 2006
-  const hashedCeoPassword = await bcrypt.hash("2006", 10);
-  const hashedEmpPassword = await bcrypt.hash("Pass@123", 10);
-
-  // 1. Create CEO: Karan
-  const ceo = await prisma.user.create({
-    data: {
-      name: "Karan",
-      email: "karanraj2006rk@gmail.com",
-      role: "CEO",
-      passwordHash: hashedCeoPassword,
-      mustChangePassword: false,
-    },
+  const existingCeo = await prisma.user.findFirst({
+    where: { role: "CEO" },
   });
 
-  console.log("CEO account initialized:", {
-    name: ceo.name,
-    identifier: ceo.email,
-    role: ceo.role,
-  });
+  if (!existingCeo) {
+    const hashedCeoPassword = await bcrypt.hash("2006", 10);
+    const ceo = await prisma.user.create({
+      data: {
+        name: "Karan",
+        email: "karanraj2006rk@gmail.com",
+        role: "CEO",
+        passwordHash: hashedCeoPassword,
+        mustChangePassword: false,
+      },
+    });
 
-  console.log("Clean production database initialized: 0 mock employees, 0 mock projects.");
+    console.log("CEO account initialized:", {
+      name: ceo.name,
+      identifier: ceo.email,
+      role: ceo.role,
+    });
+  } else {
+    console.log("CEO account already initialized:", existingCeo.email);
+  }
 }
 
 main()
