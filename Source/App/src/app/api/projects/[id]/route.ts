@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { UpdateProjectSchema } from "@/lib/validations";
+import { trashProjectDriveFolder } from "@/lib/drive";
 
 export async function GET(
   request: Request,
@@ -211,6 +212,11 @@ export async function DELETE(
         message: { contains: existing.code },
       },
     });
+
+    // Move dedicated Google Drive folder to trash if configured
+    if (existing.driveFolderId) {
+      await trashProjectDriveFolder(existing.driveFolderId);
+    }
 
     // Delete project (cascade deletes members, tasks, updates, approvals)
     await prisma.project.delete({

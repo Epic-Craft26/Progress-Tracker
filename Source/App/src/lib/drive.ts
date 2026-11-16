@@ -256,3 +256,48 @@ export async function revokeDriveFolderAccess(
   }
 }
 
+export async function trashProjectDriveFolder(
+  folderId?: string | null
+): Promise<boolean> {
+  if (!folderId) return false;
+
+  // Crucial safety check: NEVER trash or modify the master root folder!
+  const masterId =
+    process.env.GOOGLE_DRIVE_MASTER_FOLDER_ID || DEFAULT_MASTER_FOLDER_ID;
+  if (folderId === masterId) {
+    console.warn("Safety trigger: Refusing to trash master Google Drive folder.");
+    return false;
+  }
+
+  const token = await getDriveAccessToken();
+  if (!token) return false;
+
+  try {
+    const res = await fetch(
+      `https://www.googleapis.com/drive/v3/files/${folderId}?supportsAllDrives=true`,
+      {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          trashed: true,
+        }),
+      }
+    );
+
+    if (!res.ok) {
+      const err = await res.json();
+      console.error("Failed to trash Google Drive folder:", err);
+      return false;
+    }
+
+    console.log(`Successfully moved Google Drive folder ${folderId} to trash.`);
+    return true;
+  } catch (error) {
+    console.error("Error moving Google Drive folder to trash:", error);
+    return false;
+  }
+}
+
