@@ -32,6 +32,7 @@ import { ProgressBar } from "@/components/ui/ProgressBar";
 import { Avatar, AvatarGroup } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
+import { LiveTeamManager } from "@/components/projects/LiveTeamManager";
 import { formatDate } from "@/lib/utils";
 import { UserSession } from "@/types";
 
@@ -98,6 +99,19 @@ export default function CeoProjectsPage() {
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     loadProjects();
+  };
+
+  const refreshSelectedProject = async (projectId: string) => {
+    try {
+      const res = await fetch(`/api/projects/${projectId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setSelectedProject(data.project);
+      }
+      loadProjects();
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   // Open Edit Modal
@@ -577,69 +591,15 @@ export default function CeoProjectsPage() {
               )}
             </div>
 
-            {/* Assigned Contributors Breakdown */}
+            {/* Live Team Assignment Manager (Add / Remove / Reassign while live) */}
             <div>
-              <div className="flex items-center justify-between mb-2">
-                <h4 className="text-xs font-bold text-dash-textPrimary uppercase tracking-wider flex items-center gap-1.5">
-                  <Users className="w-3.5 h-3.5 text-brand-500" />
-                  Assigned Team Contributors ({selectedProject.members?.length || 0})
-                </h4>
-                {selectedProject.members?.length > 0 && (
-                  <button
-                    onClick={() => {
-                      const emails = selectedProject.members
-                        .map((m: any) => m.user.email)
-                        .join(", ");
-                      navigator.clipboard.writeText(emails).catch(() => {});
-                      setCopiedEmails(true);
-                      setTimeout(() => setCopiedEmails(false), 2000);
-                    }}
-                    className="text-[11px] font-bold text-brand-500 hover:text-brand-600 inline-flex items-center gap-1"
-                  >
-                    {copiedEmails ? (
-                      <>
-                        <Check className="w-3 h-3 text-status-completed" />
-                        <span className="text-status-completed">Copied emails</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-3 h-3" />
-                        <span>Copy Emails for Drive</span>
-                      </>
-                    )}
-                  </button>
-                )}
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {selectedProject.members?.map((m: any) => (
-                  <div
-                    key={m.id}
-                    className="flex items-center justify-between p-2.5 rounded-smDash bg-[#F8F9FC] border border-dash-border/60 text-xs"
-                  >
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <Avatar name={m.user.name} size="sm" />
-                      <div className="truncate">
-                        <div className="font-bold text-dash-textPrimary truncate">
-                          {m.user.name}
-                        </div>
-                        <div className="text-[11px] text-dash-textSecondary truncate">
-                          {m.user.email}
-                        </div>
-                      </div>
-                    </div>
-                    <span
-                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                        m.memberRole === "LEAD"
-                          ? "bg-amber-100 text-amber-800 border border-amber-200"
-                          : "bg-gray-200/80 text-gray-700"
-                      }`}
-                    >
-                      {m.memberRole}
-                    </span>
-                  </div>
-                ))}
-              </div>
+              <LiveTeamManager
+                projectId={selectedProject.id}
+                projectTitle={selectedProject.title}
+                driveFolderId={selectedProject.driveFolderId}
+                driveFolderUrl={selectedProject.driveFolderUrl}
+                onMembersChange={() => refreshSelectedProject(selectedProject.id)}
+              />
             </div>
 
             {/* Subtasks / Milestones list if any */}

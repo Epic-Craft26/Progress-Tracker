@@ -169,3 +169,81 @@ export async function createProjectDriveFolder({
     return null;
   }
 }
+
+export async function grantDriveFolderAccess(
+  folderId: string,
+  email: string,
+  role: "writer" | "reader" = "writer"
+): Promise<boolean> {
+  if (!email || !email.includes("@")) return false;
+  const token = await getDriveAccessToken();
+  if (!token) return false;
+
+  try {
+    const res = await fetch(`https://www.googleapis.com/drive/v3/files/${folderId}/permissions?sendNotificationEmail=false`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        role,
+        type: "user",
+        emailAddress: email.trim(),
+      }),
+    });
+
+    if (!res.ok) {
+      const errData = await res.json();
+      console.warn(`Failed to grant Drive access to ${email}:`, errData);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error(`Error granting Drive access to ${email}:`, err);
+    return false;
+  }
+}
+
+export async function revokeDriveFolderAccess(
+  folderId: string,
+  email: string
+): Promise<boolean> {
+  if (!email || !email.includes("@")) return false;
+  const token = await getDriveAccessToken();
+  if (!token) return false;
+
+  try {
+    // 1. List existing permissions to find permissionId matching email
+    const listRes = await fetch(
+      `https://www.googleapis.com/drive/v3/files/${folderId}/permissions?fields=permissions(id,emailAddress,role)`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    if (!listRes.ok) return false;
+    const data = await listRes.json();
+    const permissions = data.permissions || [];
+    const targetPerm = permissions.find(
+      (p: any) => p.emailAddress?.toLowerCase() === email.trim().toLowerCase()
+    );
+
+    if (!targetPerm) return true; // Already not present
+
+    // 2. Delete the permission
+    const delRes = await fetch(
+      `https://www.googleapis.com/drive/v3/files/${folderId}/permissions/${targetPerm.id}`,
+      {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    return delRes.ok;
+  } catch (err) {
+    console.error(`Error revoking Drive access for ${email}:`, err);
+    return false;
+  }
+}
+

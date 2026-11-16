@@ -103,3 +103,17 @@ export const UpdateEmployeeSchema = z.object({
   isActive: z.boolean().optional(),
   action: z.enum(["UPDATE", "RESET_PASSWORD", "TOGGLE_ACTIVE"]).optional(),
 });
+
+export const AddProjectMemberSchema = z.object({
+  userId: z.string().min(1, "Employee ID is required"),
+  memberRole: z.enum(["LEAD", "CONTRIBUTOR"]).default("CONTRIBUTOR"),
+});
+
+export const RemoveProjectMemberSchema = z.object({
+  reassignTasksToUserId: z.string().nullable().optional(),
+});
+
+export const ChangeMemberRoleSchema = z.object({
+  memberRole: z.enum(["LEAD", "CONTRIBUTOR"]),
+});
+
